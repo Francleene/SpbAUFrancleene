@@ -49,15 +49,7 @@ def read_words(filename):
 def make_dict_from_file(filename):
     
     words = read_words(filename)
-    
-    # if punctuation must be delete
-    for index, word in enumerate(words):
-        words[index] = words[index].strip(string.punctuation)
-        words[index] = words[index].rstrip(string.punctuation)
-        if (len(words[index]) == 0):
-            del words[index]
 
-    
     for i in range(len(words)):
         words[i] = words[i].lower()
 
@@ -82,8 +74,7 @@ def print_top(filename):
 
     sorted_dict = sorted(dictionary.items(), key=lambda x: x[1], reverse=True)
     
-    size_top = min(20, len(sorted_dict))
-    for word, count in sorted_dict[:size_top]:
+    for word, count in sorted_dict[:20]:
         print(word, count)
  
 # This basic command line argument parsing code is provided and
