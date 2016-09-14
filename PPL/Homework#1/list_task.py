@@ -36,3 +36,6 @@ def linear_merge(lst1, lst2):
         lst += lst2[j:]
         
     return lst
+lst1 = [1,3,5]
+lst2 = [2,4,6]
+print(linear_merge(lst1, lst2))
