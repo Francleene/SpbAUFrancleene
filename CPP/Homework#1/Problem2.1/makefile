@@ -1,4 +1,4 @@
-lab: make_dir lab1 clean
+lab: make_dir lab1
 
 main.o = ./bin/main.o
 algorithm.o = ./bin/algorithm.o
