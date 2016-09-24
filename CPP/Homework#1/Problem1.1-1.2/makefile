@@ -33,4 +33,4 @@ make_dir:
 	mkdir -p bin
 
 clean:
-	rm ./bin/*.o
+	rm -r bin
