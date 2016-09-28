@@ -7,15 +7,17 @@ def mul_matrix(first_matrix, second_matrix):
     if size == 1:
         return first_matrix * second_matrix
 
-    a_1_1 = first_matrix[:size // 2, :size // 2]
-    a_1_2 = first_matrix[:size // 2, size // 2:]
-    a_2_1 = first_matrix[size // 2:, :size // 2]
-    a_2_2 = first_matrix[size // 2:, size // 2:]
+    middle = size // 2
 
-    b_1_1 = second_matrix[:size // 2, :size // 2]
-    b_1_2 = second_matrix[:size // 2, size // 2:]
-    b_2_1 = second_matrix[size // 2:, :size // 2]
-    b_2_2 = second_matrix[size // 2:, size // 2:]
+    a_1_1 = first_matrix[:middle, :middle]
+    a_1_2 = first_matrix[:middle, middle:]
+    a_2_1 = first_matrix[middle:, :middle]
+    a_2_2 = first_matrix[middle:, middle:]
+
+    b_1_1 = second_matrix[:middle, :middle]
+    b_1_2 = second_matrix[:middle, middle:]
+    b_2_1 = second_matrix[middle:, :middle]
+    b_2_2 = second_matrix[middle:, middle:]
 
     p_1 = mul_matrix(a_1_1 + a_2_2, b_1_1 + b_2_2)
     p_2 = mul_matrix(a_2_1 + a_2_2, b_1_1)
@@ -30,20 +32,20 @@ def mul_matrix(first_matrix, second_matrix):
     c_2_1 = p_2 + p_4
     c_2_2 = p_1 - p_2 + p_3 + p_6
 
-    return_matrix = np.empty([size, size])
-    return_matrix[:size // 2, :size // 2] = c_1_1
-    return_matrix[:size // 2, size // 2:] = c_1_2
-    return_matrix[size // 2:, :size // 2] = c_2_1
-    return_matrix[size // 2:, size // 2:] = c_2_2
+    return_matrix = np.empty([size, size], dtype=np.int)
+    return_matrix[:middle, :middle] = c_1_1
+    return_matrix[:middle, middle:] = c_1_2
+    return_matrix[middle:, :middle] = c_2_1
+    return_matrix[middle:, middle:] = c_2_2
 
     return return_matrix
 
 
 def input_matrix(input_size_of_matrix):
     degree = np.ceil(np.log2(input_size_of_matrix))
-    size_of_matrix = int(2 ** degree)
+    size_of_matrix = 2 ** degree
 
-    matrix = np.zeros(shape=(size_of_matrix, size_of_matrix))
+    matrix = np.zeros(shape=(size_of_matrix, size_of_matrix), dtype=np.int)
     for i in range(input_size_of_matrix):
         matrix[i][:input_size_of_matrix] = input().split(' ')
 
@@ -56,11 +58,16 @@ def print_matrix(matrix, size):
             print(elem, end=' ')
         print()
 
-size_of_matrix = int(input())
 
-first_matrix = input_matrix(size_of_matrix)
-second_matrix = input_matrix(size_of_matrix)
+def main():
+    size_of_matrix = int(input())
 
-mul_matrix = mul_matrix(first_matrix, second_matrix)
+    first_matrix = input_matrix(size_of_matrix)
+    second_matrix = input_matrix(size_of_matrix)
 
-print_matrix(mul_matrix, size_of_matrix)
+    res_matrix = mul_matrix(first_matrix, second_matrix)
+
+    print_matrix(res_matrix, size_of_matrix)
+
+if __name__ == "__main__":
+    main()
