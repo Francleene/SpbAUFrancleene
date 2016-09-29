@@ -18,4 +18,4 @@ void add_node(struct intrusive_list * list, struct intrusive_node * node);
 void remove_node(struct intrusive_list * list, struct intrusive_node * node);
 int get_length(struct intrusive_list * list);
 
-#endif CLIST_H
+#endif 
