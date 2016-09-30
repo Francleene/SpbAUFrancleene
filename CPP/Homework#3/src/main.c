@@ -37,12 +37,12 @@ void add_position(struct intrusive_list * list, int x, int y) {
 }
 
 void show_all_positions(struct intrusive_list * list) {
-    struct intrusive_node * ptr = (list->head)->next;
+    struct intrusive_node * ptr = (list->head)->prev;
     struct position_node * container;
     while (ptr != list->head) {
         container = container_of(ptr, struct position_node, node);
         printf("(%d %d) ", container->x, container->y);
-        ptr = ptr->next;
+        ptr = ptr->prev;
     }
     printf("\n");
 }
