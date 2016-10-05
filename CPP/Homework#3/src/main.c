@@ -19,11 +19,11 @@ void remove_position(struct intrusive_list * list, int x, int y) { // removes al
         if (container->x == x && container->y == y) {
             remove_node(list, ptr);
             
-            struct position_node * pos_node_address = container_of(ptr, struct position_node, node);
-            free(pos_node_address);
+            ptr = ptr->next;
+            free(container);
+        } else {
+            ptr = ptr->next;
         }
-        
-        ptr = ptr->next;
     }
     
 }
@@ -54,8 +54,8 @@ void remove_all_positions(struct intrusive_list * list) {
     while (ptr != list->head) {
         pos_ptr = container_of(ptr, struct position_node, node);
         remove_node(list, ptr);
-        free(pos_ptr);
         ptr = ptr->next;
+        free(pos_ptr);
     }
 }
 

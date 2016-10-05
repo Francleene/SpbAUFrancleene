@@ -1,7 +1,7 @@
 all: make_dir pose_db
 
 pose_db: ./bin/clist.o ./bin/main.o
-	gcc ./bin/clist.o ./bin/main.o -o pose_db
+	gcc -g ./bin/clist.o ./bin/main.o 
 
 ./bin/clist.o: ./src/clist.c
 	gcc -c ./src/clist.c -o ./bin/clist.o
