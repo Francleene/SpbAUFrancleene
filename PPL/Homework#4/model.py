@@ -1,3 +1,6 @@
+from operator import add, sub, mul, truediv, mod, eq, ne, lt, gt, le, ge, neg
+
+
 class Scope:
 
     """Scope - представляет доступ к значениям по именам
@@ -67,6 +70,12 @@ class Number:
     def __ge__(self, other):
         return Number(self.value >= other.value)
 
+    def __neg__(self):
+        return Number(-self.value)
+
+    def __not__(self):
+        return Number(int(not self.value))
+
 
 class Function:
 
@@ -93,7 +102,6 @@ class Function:
             expr.evaluate(scope)
 
         return self.body[-1].evaluate(scope)
-        
 
 
 class FunctionDefinition:
@@ -126,21 +134,15 @@ class Conditional:
 
     def evaluate(self, scope):
         cond = self.condition.evaluate(scope)
-        
-        if cond.value:
-            if self.if_true:
-                for expr in self.if_true[:-1]:
-                    expr.evaluate(scope)
-                return self.if_true[-1].evaluate(scope)
-            else:
-                return Number (239)
+
+        branch = self.if_true if cond.value else self.if_false
+
+        if branch:
+            for expr in branch[:-1]:
+                expr.evaluate(scope)
+            return branch[-1].evaluate(scope)
         else:
-            if self.if_false:
-                for expr in self.if_false[:-1]:
-                    expr.evaluate(scope)
-                return self.if_false[-1].evaluate(scope)
-            else:
-                return Number(239)
+            return Number(239)
 
 
 class Print:
@@ -154,7 +156,7 @@ class Print:
         num = self.expr.evaluate(scope)
         print(num.value)
         return num
-        
+
 
 class Read:
 
@@ -173,7 +175,6 @@ class Read:
         return value
 
 
-#done
 class FunctionCall:
 
     """
@@ -192,13 +193,12 @@ class FunctionCall:
         self.func = self.expr.evaluate(scope)
 
         child = Scope(scope)
-        for index, value in enumerate(self.args):
-            child[self.func.args[index]] = value.evaluate(scope)
+        for name, arg in zip(self.func.args, self.args):
+            child[name] = arg.evaluate(scope)
 
         return self.func.evaluate(child)
-        
 
-#done
+
 class Reference:
 
     """Reference - получение объекта
@@ -211,7 +211,6 @@ class Reference:
         return scope[self.name]
 
 
-#done
 class BinaryOperation:
 
     """BinaryOperation - представляет бинарную операцию над двумя выражениями.
@@ -219,6 +218,20 @@ class BinaryOperation:
     Поддерживаемые операции:
     “+”, “-”, “*”, “/”, “%”, “==”, “!=”,
     “<”, “>”, “<=”, “>=”, “&&”, “||”."""
+
+    oper = {"+":  lambda first, second:     add(first, second),
+            "-":  lambda first, second:     sub(first, second),
+            "*":  lambda first, second:     mul(first, second),
+            "/":  lambda first, second: truediv(first, second),
+            "%":  lambda first, second:     mod(first, second),
+            "==": lambda first, second:      eq(first, second),
+            "!=": lambda first, second:      ne(first, second),
+            "<":  lambda first, second:      lt(first, second),
+            ">":  lambda first, second:      gt(first, second),
+            "<=": lambda first, second:      le(first, second),
+            ">=": lambda first, second:      ge(first, second),
+            "&&": lambda first, second:  Number(first.value and second.value),
+            "||": lambda first, second:  Number(first.value or second.value)}
 
     def __init__(self, lhs, op, rhs):
         self.left = lhs
@@ -229,51 +242,17 @@ class BinaryOperation:
         left_num = self.left.evaluate(scope)
         right_num = self.right.evaluate(scope)
 
-        if self.op == "+":
-            return left_num + right_num
+        return BinaryOperation.oper[self.op](left_num, right_num)
 
-        if self.op == "-":
-            return left_num - right_num
 
-        if self.op == "*":
-            return left_num * right_num
-
-        if self.op == "/":
-            return left_num / right_num
-
-        if self.op == "%":
-            return left_num % right_num
-
-        if self.op == "==":
-            return left_num == right_num
-
-        if self.op == "!=":
-            return left_num != right_num
-
-        if self.op == "<":
-            return left_num < right_num
-
-        if self.op == ">":
-            return left_num > right_num
-
-        if self.op == "<=":
-            return left_num <= right_num
-
-        if self.op == ">=":
-            return left_num >= right_num
-
-        if self.op == "&&":
-            return Number(left_num.value and right_num.value)
-
-        if self.op == "||":
-            return Number(left_num.value or right_num.value)
-
-#done
 class UnaryOperation:
 
     """UnaryOperation - представляет унарную операцию над выражением.
     Результатом вычисления унарной операции является объект Number.
     Поддерживаемые операции: “-”, “!”."""
+
+    oper = {"-": lambda number: neg(number),
+            "!": lambda number: Number(not number.value)}
 
     def __init__(self, op, expr):
         self.op = op
@@ -282,11 +261,7 @@ class UnaryOperation:
     def evaluate(self, scope):
         num = self.expr.evaluate(scope)
 
-        if self.op == "-":
-            return Number(-num.value)
-
-        if self.op == "!":
-            return Number(not num.value)
+        return UnaryOperation.oper[self.op](num)
 
 
 def example():
@@ -304,15 +279,16 @@ def example():
     FunctionCall(FunctionDefinition('foo', parent['foo']),
                  [Number(5), UnaryOperation('-', Number(3))]).evaluate(scope)
 
+
 def my_tests():
     scope = Scope()
-    
+
     Print(Number(10)).evaluate(scope)
     Print(BinaryOperation(Number(10), "+", Number(20))).evaluate(scope)
-    
+
     scope["a"] = Number(10)
     scope["b"] = Number(20)
-    
+
     Print(Reference("a")).evaluate(scope)
     Print(BinaryOperation(Reference("a"), "*", Reference("b"))).evaluate(scope)
 
@@ -336,7 +312,7 @@ def my_tests():
 
     FunctionDefinition("print_sub", Function(("first", "second"), [Print(BinaryOperation(Reference("second"), "-", Reference("first")))])).evaluate(child_scope)
     FunctionCall(Reference("print_sub"), [Reference("a"), Reference("b")]).evaluate(child_scope)
-    
+
     FunctionDefinition("print(a*b*c)", Function(("first", "second", "third"), [Print(BinaryOperation(Reference("first"), "*", BinaryOperation(Reference("second"), "*", Reference("third"))))])).evaluate(scope)
     FunctionCall(Reference("print(a*b*c)"), [Number(5), Number(7), Number(11)]).evaluate(scope)
 
@@ -365,9 +341,11 @@ def my_tests():
 
     Conditional(BinaryOperation(Number(239), ">", Number(30)), [FunctionDefinition("best_school", Function((), [Print(Number(30))]))]).evaluate(child_scope)
     FunctionCall(Reference("best_school"), []).evaluate(child_scope)
-    
+
+    Print(UnaryOperation("-", Number(3))).evaluate(scope)
+    Print(BinaryOperation(UnaryOperation("!", Number(3)), "+", Number(5))).evaluate(scope)
+    Print(BinaryOperation(UnaryOperation("!", Number(0)), "+", Number(5))).evaluate(scope)
+
 if __name__ == '__main__':
     example()
     my_tests()
-
-
