@@ -110,6 +110,7 @@ class FunctionDefinition:
 
     def evaluate(self, scope):
         scope[self.name] = self.function
+        return self.function
 
 
 class Conditional:
@@ -119,10 +120,27 @@ class Conditional:
     """
 
     def __init__(self, condtion, if_true, if_false=None):
-        raise NotImplementedError
+        self.condition = condtion
+        self.if_true = if_true
+        self.if_false = if_false
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        cond = self.condition.evaluate(scope)
+        
+        if cond.value:
+            if self.if_true:
+                for expr in self.if_true[:-1]:
+                    expr.evaluate(scope)
+                return self.if_true[-1].evaluate(scope)
+            else:
+                return Number (239)
+        else:
+            if self.if_false:
+                for expr in self.if_false[:-1]:
+                    expr.evaluate(scope)
+                return self.if_false[-1].evaluate(scope)
+            else:
+                return Number(239)
 
 
 class Print:
@@ -264,10 +282,10 @@ class UnaryOperation:
     def evaluate(self, scope):
         num = self.expr.evaluate(scope)
 
-        if op == "-":
+        if self.op == "-":
             return Number(-num.value)
 
-        if op == "!":
+        if self.op == "!":
             return Number(not num.value)
 
 
@@ -331,8 +349,25 @@ def my_tests():
     FunctionCall(Reference("Mul or add? That is a question!"), [Reference("mul"), Number(2), Number(3)]).evaluate(scope)
     FunctionCall(Reference("Mul or add? That is a question!"), [Reference("add"), Number(2), Number(3)]).evaluate(scope)
 
+    Conditional(BinaryOperation(Number(1), "==", Number(2)), [Print(Number(1))], [Print(Number(0))]).evaluate(scope)
+
+    FunctionDefinition("max", Function(("first", "second"), [Conditional(BinaryOperation(Reference("first"), ">", Reference("second")), [Print(Reference("first"))], [Print(Reference("second"))])])).evaluate(scope)
+
+    FunctionCall(Reference("max"), [Number(1), Number(2)]).evaluate(scope)
+    FunctionCall(Reference("max"), [Number(2), Number(1)]).evaluate(scope)
+    FunctionCall(Reference("max"), [Number(2), Number(2)]).evaluate(scope)
+
+    FunctionDefinition("best_school", Function((), [Print(Number(239))])).evaluate(scope)
+    FunctionCall(Reference("best_school"), []).evaluate(child_scope)
+
+    Conditional(BinaryOperation(Number(239), "<", Number(30)), [FunctionDefinition("best_school", Function((), [Print(Number(30))]))]).evaluate(child_scope)
+    FunctionCall(Reference("best_school"), []).evaluate(child_scope)
+
+    Conditional(BinaryOperation(Number(239), ">", Number(30)), [FunctionDefinition("best_school", Function((), [Print(Number(30))]))]).evaluate(child_scope)
+    FunctionCall(Reference("best_school"), []).evaluate(child_scope)
+    
 if __name__ == '__main__':
-    #example()
+    example()
     my_tests()
 
 
