@@ -74,7 +74,7 @@ class Number:
         return Number(-self.value)
 
     def __not__(self):
-        return Number(int(not self.value))
+        return Number(not self.value)
 
 
 class Function:
@@ -219,17 +219,17 @@ class BinaryOperation:
     “+”, “-”, “*”, “/”, “%”, “==”, “!=”,
     “<”, “>”, “<=”, “>=”, “&&”, “||”."""
 
-    oper = {"+":  lambda first, second:     add(first, second),
-            "-":  lambda first, second:     sub(first, second),
-            "*":  lambda first, second:     mul(first, second),
-            "/":  lambda first, second: truediv(first, second),
-            "%":  lambda first, second:     mod(first, second),
-            "==": lambda first, second:      eq(first, second),
-            "!=": lambda first, second:      ne(first, second),
-            "<":  lambda first, second:      lt(first, second),
-            ">":  lambda first, second:      gt(first, second),
-            "<=": lambda first, second:      le(first, second),
-            ">=": lambda first, second:      ge(first, second),
+    oper = {"+":      add,
+            "-":      sub,
+            "*":      mul,
+            "/":  truediv,
+            "%":      mod,
+            "==":      eq,
+            "!=":      ne,
+            "<":       lt,
+            ">":       gt,
+            "<=":      le,
+            ">=":      ge,
             "&&": lambda first, second:  Number(first.value and second.value),
             "||": lambda first, second:  Number(first.value or second.value)}
 
@@ -251,7 +251,7 @@ class UnaryOperation:
     Результатом вычисления унарной операции является объект Number.
     Поддерживаемые операции: “-”, “!”."""
 
-    oper = {"-": lambda number: neg(number),
+    oper = {"-": neg,
             "!": lambda number: Number(not number.value)}
 
     def __init__(self, op, expr):
