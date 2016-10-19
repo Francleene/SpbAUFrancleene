@@ -21,84 +21,131 @@ class PrintVisitor:
     
 
     def visitConditional(self, conditional):
-        condition, _ = conditional.condition.accept(self)
-
-        output = "if (" + condition + ") {\n"
+        print("if (", end="")
+        conditional.condition.accept(self)
+        print(") {")
 
         if conditional.if_true:
-            for expr, _ in [elem.accept(self) for elem in conditional.if_true]:
-                output += "    {0};\n".format(expr)
+            for elem in conditional.if_true:
+                print("    ", end="")
+                elem.accept(self) 
+                print(";")
 
         if conditional.if_false != None:
-            output += "} else {\n"
-            for expr, _ in [elem.accept(self) for elem in conditional.if_false]:
-                output += "    {0};\n".format(expr)
+            print("} else {")
+            for elem in conditional.if_false:
+                print("    ", end="")
+                elem.accept(self)
+                print(";")
                 
-        output += "}"
+        print("}", end="")
 
-        return output, 0
+        return 0
 
 
     def visitFunctionDefinition(self, func_def):
-        output = "def " + func_def.name
+        print("def " + func_def.name, end="")
 
-        output += "(" + ", ".join(func_def.function.args) + ") {\n"
+        print("(" + ", ".join(func_def.function.args) + ") {")
 
-        for expr, _ in [elem.accept(self) for elem in func_def.function.body]:
-            output += "    {0};\n".format(expr)
+        for elem in func_def.function.body:
+            print("    ", end="")
+            elem.accept(self)
+            print(";")
 
-        output += "}"
+        print("}", end="")
 
-        return output, 8
+        return 8
         
 
     def visitFunctionCall(self, func_call):
-        name, _ = func_call.expr.accept(self)
+        func_call.expr.accept(self)
 
-        output = name
+        print("(", end="")
+        
+        if func_call.args:
+            func_call.args[0].accept(self)
+        
+        for elem in func_call.args[1:]:
+            print(", ", end="")
+            elem.accept(self)
 
-        output += "(" + ", ".join([str(elem.accept(self)[0]) for elem in func_call.args]) + ")"
+        print(")", end="")
 
-        return output, 8
+        return 8
         
 
     def visitPrint(self, prnt):
-        expr, _ = prnt.expr.accept(self)
+        print("print ", end="")
 
-        return "print " + expr, 0
+        prnt.expr.accept(self)
+
+        return 0
 
     def visitRead(self, read):
-        return "read " + read.name, 0
+        print("read " + read.name, end="")
+        return 0
     
     def visitNumber(self, number):
-        return str(number.value), 8
+        print(number.value, end="")
+        return 8
 
     def visitReference(self, reference):
-        return reference.name, 8
+        print(reference.name, end="")
+        return 8
 
     def visitBinaryOperation(self, binaryOperation):
-        left_part, left_prior = binaryOperation.left.accept(self)
-        right_part, right_prior = binaryOperation.right.accept(self)
+        left_part = binaryOperation.left
+        right_part = binaryOperation.right
+        op = binaryOperation.op
+        
+        left_bracket = (isinstance(left_part, BinaryOperation) and
+                        PrintVisitor.prior[left_part.op] < PrintVisitor.prior[op])
 
-        if left_prior < PrintVisitor.prior[binaryOperation.op]:
-            left_part = "(" + left_part + ")"
 
-        if right_prior < PrintVisitor.prior[binaryOperation.op]:
-            right_part = "(" + right_part + ")"
+        right_bracket = (isinstance(right_part, BinaryOperation) and
+                        PrintVisitor.prior[right_part.op] < PrintVisitor.prior[op])
 
-        return left_part + " " + binaryOperation.op + " " + right_part, PrintVisitor.prior[binaryOperation.op]
+        if left_bracket:
+            print("(", end="")
+
+        left_part.accept(self)
+
+        if left_bracket:
+            print(")", end="")
+
+        print(" " + op + " ", end="")
+
+        if right_bracket:
+            print("(", end="")
+
+        right_part.accept(self)
+
+        if right_bracket:
+            print(")", end="")
+            
+        return PrintVisitor.prior[op]
 
     def visitUnaryOperation(self, unaryOperation):
-        expr, prior = unaryOperation.expr.accept(self)
+        expr = unaryOperation.expr
+        op = unaryOperation.op
 
-        if prior < 7:
-            expr = "(" + expr + ")"
+        bracket = (isinstance(expr, BinaryOperation) and
+                   PrintVisitor.prior[expr.op] < PrintVisitor.prior[op])
 
-        return unaryOperation.op + expr, PrintVisitor.prior[unaryOperation.op]
+        if bracket:
+            print("(", end="")
+
+        expr.accept(self)
+
+        if bracket:
+            print(")", end="")
+        
+        return PrintVisitor.prior[op]
 
 
 class PrettyPrinter:
     def visit(self, tree):
         visitor = PrintVisitor()
-        value, _ = tree.accept(visitor)
-        print(value, end=";\n")
+        tree.accept(visitor)
+        print(";")
