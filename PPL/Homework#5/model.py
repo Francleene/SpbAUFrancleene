@@ -106,6 +106,10 @@ class Function:
 
         return self.body[-1].evaluate(scope)
 
+    def __eq__(self, other):
+        return (self.args == other.args and
+                self.body == other.body)
+
 
 class FunctionDefinition:
 
@@ -125,6 +129,10 @@ class FunctionDefinition:
 
     def accept(self, visitor):
         return visitor.visitFunctionDefinition(self)
+
+    def __eq__(self, other):
+        return (self.name == other.name and
+                self.function == other.function)
 
 
 class Conditional:
@@ -153,6 +161,11 @@ class Conditional:
     def accept(self, visitor):
         return visitor.visitConditional(self)
 
+    def __eq__(self, other):
+        return (self.condition == other.condition and
+                self.if_true == other.if_true and
+                self.if_false == other.if_false)
+
 
 class Print:
 
@@ -168,6 +181,9 @@ class Print:
 
     def accept(self, visitor):
         return visitor.visitPrint(self)
+
+    def __eq__(self, other):
+        return self.expr == other.expr
 
 
 class Read:
@@ -188,6 +204,9 @@ class Read:
 
     def accept(self, visitor):
         return visitor.visitRead(self)
+
+    def __eq__(self, other):
+        return self.name - other.name
 
 
 class FunctionCall:
@@ -216,6 +235,10 @@ class FunctionCall:
     def accept(self, visitor):
         return visitor.visitFunctionCall(self)
 
+    def __eq__(self, other):
+        return (self.expr == other.expr and
+                self.args == other.args)
+
 
 class Reference:
 
@@ -230,6 +253,9 @@ class Reference:
 
     def accept(self, visitor):
         return visitor.visitReference(self)
+
+    def __eq__(self, other):
+        return self.name == other.name
 
 
 class BinaryOperation:
@@ -268,6 +294,11 @@ class BinaryOperation:
     def accept(self, visitor):
         return visitor.visitBinaryOperation(self)
 
+    def __eq__(self, other):
+        return (self.left == other.left and
+                self.right == other.right and
+                self.op == other.op)
+
 
 class UnaryOperation:
 
@@ -289,6 +320,10 @@ class UnaryOperation:
 
     def accept(self, visitor):
         return visitor.visitUnaryOperation(self)
+
+    def __eq__(self, other):
+        return (self.op == other.op and
+                self.expr == other.expr)
 
 
 def example():
@@ -376,5 +411,5 @@ def my_tests():
 
 if __name__ == '__main__':
     #example()
-    #my_tests()
-    out_tests()
+    my_tests()
+    #out_tests()

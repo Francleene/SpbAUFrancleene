@@ -1,4 +1,4 @@
-from model import Scope, Number, Function, FunctionDefinition, Conditional, Print, Read, FunctionCall, Reference, BinaryOperation, UnaryOperation
+from yat.model import Scope, Number, Function, FunctionDefinition, Conditional, Print, Read, FunctionCall, Reference, BinaryOperation, UnaryOperation
 
 
 class PrintVisitor:
@@ -29,7 +29,7 @@ class PrintVisitor:
             for expr, _ in [elem.accept(self) for elem in conditional.if_true]:
                 output += "    {0};\n".format(expr)
 
-        if conditional.if_false:
+        if conditional.if_false != None:
             output += "} else {\n"
             for expr, _ in [elem.accept(self) for elem in conditional.if_false]:
                 output += "    {0};\n".format(expr)
