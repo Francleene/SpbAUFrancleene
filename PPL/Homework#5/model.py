@@ -17,7 +17,7 @@ class Scope:
         self.parent = parent
 
     def __getitem__(self, name):
-        if name in self.d.keys():
+        if name in self.d:
             return self.d[name]
         else:
             return self.parent[name]
