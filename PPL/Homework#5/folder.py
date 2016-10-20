@@ -1,5 +1,6 @@
 from yat.model import Scope, Number, Function, FunctionDefinition, Conditional, Print, Read, FunctionCall, Reference, BinaryOperation, UnaryOperation
 
+
 class ConstantVisitor:
 
     def visitConditional(self, cond):
@@ -47,15 +48,16 @@ class ConstantVisitor:
         return reference
 
     def visitBinaryOperation(self, binaryOperation):
-        left_part = binaryOperation.left
-        right_part = binaryOperation.right
+        left_part = binaryOperation.left.accept(self)
+        right_part = binaryOperation.right.accept(self)
         op = binaryOperation.op
 
         left_is_num = isinstance(left_part, Number)
         right_is_num = isinstance(right_part, Number)
 
         if left_is_num and right_is_num:
-            return BinaryOperation.oper[op](left_part, right_part)
+            scope = Scope()
+            return binaryOperation.evaluate(scope)
 
         if op == "*" and (left_is_num and left_part == Number(0) or
                           right_is_num and right_part == Number(0)):
@@ -69,9 +71,9 @@ class ConstantVisitor:
     def visitUnaryOperation(self, unaryOperation):
         expr = unaryOperation.expr.accept(self)
 
-        if expr_type == 0 or expr_type == 1:
-            number = UnaryOperation.oper[unaryOperation.op](expr)
-            return number, 1 if expr else 0
+        if isinstance(expr, Number):
+            scope = Scope()
+            return unaryOperation.evaluate(scope)
 
         return UnaryOperation(unaryOperation.op, expr)
     

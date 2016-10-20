@@ -3,6 +3,9 @@ from yat.model import Scope, Number, Function, FunctionDefinition, Conditional, 
 
 class PrintVisitor:
 
+    MIN_PRIORITY = 0
+    MAX_PRIORITY = 8
+
     prior = {"-":  7,
              "!":  7,
              "*":  6,
@@ -25,11 +28,10 @@ class PrintVisitor:
         conditional.condition.accept(self)
         print(") {")
 
-        if conditional.if_true:
-            for elem in conditional.if_true:
-                print("    ", end="")
-                elem.accept(self) 
-                print(";")
+        for elem in conditional.if_true:
+            print("    ", end="")
+            elem.accept(self) 
+            print(";")
 
         if conditional.if_false != None:
             print("} else {")
@@ -40,7 +42,7 @@ class PrintVisitor:
                 
         print("}", end="")
 
-        return 0
+        return PrintVisitor.MIN_PRIORITY
 
 
     def visitFunctionDefinition(self, func_def):
@@ -55,7 +57,7 @@ class PrintVisitor:
 
         print("}", end="")
 
-        return 8
+        return PrintVisitor.MAX_PRIORITY
         
 
     def visitFunctionCall(self, func_call):
@@ -72,7 +74,7 @@ class PrintVisitor:
 
         print(")", end="")
 
-        return 8
+        return PrintVisitor.MAX_PRIORITY
         
 
     def visitPrint(self, prnt):
@@ -80,19 +82,19 @@ class PrintVisitor:
 
         prnt.expr.accept(self)
 
-        return 0
+        return PrintVisitor.MIN_PRIORITY
 
     def visitRead(self, read):
         print("read " + read.name, end="")
-        return 0
+        return PrintVisitor.MIN_PRIORITY
     
     def visitNumber(self, number):
         print(number.value, end="")
-        return 8
+        return PrintVisitor.MAX_PRIORITY
 
     def visitReference(self, reference):
         print(reference.name, end="")
-        return 8
+        return PrintVisitor.MAX_PRIORITY
 
     def visitBinaryOperation(self, binaryOperation):
         left_part = binaryOperation.left
