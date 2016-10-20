@@ -57,10 +57,11 @@ class ConstantVisitor:
 
         if left_is_num and right_is_num:
             scope = Scope()
-            return binaryOperation.evaluate(scope)
+            bin_operation_with_number = BinaryOperation(left_part, op, right_part)
+            return bin_operation_with_number.evaluate(scope)
 
-        if op == "*" and (left_is_num and left_part == Number(0) or
-                          right_is_num and right_part == Number(0)):
+        if op == "*" and (left_is_num and left_part.value == 0 or
+                          right_is_num and right_part.value == 0):
             return Number(0)
 
         if op == "-" and left_part == right_part:
@@ -73,7 +74,8 @@ class ConstantVisitor:
 
         if isinstance(expr, Number):
             scope = Scope()
-            return unaryOperation.evaluate(scope)
+            unar_operation_with_number = UnaryOperation(unaryOperation.op, expr)
+            return unar_operation_with_number.evaluate(scope)
 
         return UnaryOperation(unaryOperation.op, expr)
     
