@@ -36,18 +36,19 @@ std::size_t MyVector::capacity() {
 }
     
 void MyVector::reserve(std::size_t new_capacity) {
-    std::size_t new_cp = _cp;
-    while (new_cp < new_capacity) {
-        new_cp *= 2;
+    if (new_capacity > _cp) {
+        _data = (type *)realloc(_data, new_capacity * sizeof(type));
+        _cp = new_capacity;
     }
-    printf("%s", "hi");
-    _data = (type *)realloc(_data, new_cp * sizeof(type));
-    _cp = new_cp;
 }
 
 void MyVector::resize(std::size_t new_size) {
     if (new_size > _cp) {
-        reserve(new_size);
+        std::size_t new_cap = _cp;
+        while (new_cap < new_size) {
+            new_cap *= 2;
+        }
+        reserve(new_cap);
     }
     
     for (std::size_t i = _sz; i < new_size; i++) {
