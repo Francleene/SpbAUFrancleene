@@ -170,7 +170,7 @@ void get_human_from_user_data(human_s * human, user_data_s * user_data) {
     strcpy(human->middle_name, user_data->middle_name);
     strcpy(human->family_name, user_data->family_name);
 
-    for (int i = 0; i < user_data->cur_phone && i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         strcpy(human->phones[i], user_data->phone[i]);
     }
 }
@@ -290,6 +290,10 @@ void init_user_data(user_data_s * user_data, phonebook_s * phonebook) {
 
     // set err to 0
     user_data->err = 0;
+    
+    for (int i = 0; i < 10; i++) {
+        user_data->phone[i][0] = 0;
+    }
 }
 
 //print phonebook
@@ -317,6 +321,8 @@ void clear_phonebook(phonebook_s * book) {
 }
 
 int load_phonebook(const char * filename, phonebook_s * phonebook) {
+    Depth = 0;
+    
     // try to open XML file
     FILE * file = fopen(filename, "r");
 
@@ -408,7 +414,7 @@ void gen_phonebook(phonebook_s * phonebook, size_t size) {
 
     human_s * tmp_human = (human_s *)malloc(sizeof(human_s));
 
-    int number_phones, len_phone;
+    int number_phones = 0, len_phone = 0;
     for (size_t i = 0; i < size; i++) {
         strcpy(tmp_human->name, kNames[rand() % NAMES_CNT]);
         strcpy(tmp_human->middle_name, kMiddleNames[rand() % MIDDLE_NAMES_CNT]);
