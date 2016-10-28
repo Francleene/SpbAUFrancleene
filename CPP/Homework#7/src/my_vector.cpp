@@ -60,7 +60,7 @@ void MyVector::resize(std::size_t new_size) {
     
 void MyVector::push_back(type value) {
     if (_sz == _cp) {
-        reserve(_sz + 1);
+        reserve(2 * _sz);
     }
     _data[_sz++] = value;
 }
@@ -77,13 +77,14 @@ void MyVector::insert(std::size_t index, type value) {
         return;
     }
     
-    _sz++;
-    if (_sz > _cp) {
-        reserve(_sz);
+    if (_sz >= _cp) {
+        reserve(2 * _sz);
     }
-    for (std::size_t i = _sz - 1; i > index; i--) {
+    
+    for (std::size_t i = _sz; i > index; i--) {
         _data[i] = _data[i - 1];
     }
+    _sz++;
     _data[index] = value;
 }
 

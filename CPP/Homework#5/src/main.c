@@ -62,10 +62,12 @@ void loadtext(intrusive_list * list, const char * filename) {
     FILE * file = fopen(filename, "r");
     
     int x, y;
-    fscanf(file, "%d%d\n", &x, &y);
-    while (!feof(file)) {
+    
+    char str[256];
+    
+    while (fgets(str, 255, file) != NULL) {
+        sscanf(str, "%d%d", &x, &y);
         add_position(list, x, y);
-        fscanf(file, "%d%d\n", &x, &y);
     }
     
     fclose(file);
