@@ -17,18 +17,17 @@ typedef void (* op)(intrusive_node * node, const void * input, void * output);
 typedef void (* save_elem)(FILE * file, char * format, int x, int y);
 
 void readint(FILE * file, int * x) {
-    char * num = malloc(3 * sizeof(char));
+    int * num = malloc(3 * sizeof(int));
     
     for (int i = 0; i < 3; i++) {
         num[i] = 0;
+        fread(num + i, sizeof(char), 1, file);
     }
     
-    fread(num, sizeof(char), 3, file);
-    
     *x = 0;
-    *x |= num[0];
-    *x |= num[1] << 8;
-    *x |= num[2] << 16;
+    *x |= (int)num[0];
+    *x |= (int)num[1] << 8;
+    *x |= (int)num[2] << 16;
     
     if (*x >= 8388608) *x |= 255 << 24;
     

@@ -101,7 +101,7 @@ void start(void * data, const char * elem, const char ** attr) {
         }
 
         // if we have no attr[1] or attr[1] is too big
-        if (!attr[1] || strlen(attr[1]) > 1024) {
+        if (!attr[1] || strlen(attr[1]) >= 1024) {
             user_data->err = 2;
             return;
         }
@@ -113,13 +113,13 @@ void start(void * data, const char * elem, const char ** attr) {
         }
 
         // copy name attr to buffer
-        strncpy(user_data->buffer, attr[1], 1023);
+        strncpy(user_data->buffer, attr[1], 1024);
 
         // get name
         user_data->name = strtok(user_data->buffer, " ");
 
         // if name is exist
-        if (!user_data->name) {
+        if (!user_data->name || strlen(user_data->name) > 255) {
             user_data->err = 2;
             return;
         }
@@ -128,7 +128,7 @@ void start(void * data, const char * elem, const char ** attr) {
         user_data->middle_name = strtok(NULL, " ");
 
         // if middle is exist
-        if (!user_data->middle_name) {
+        if (!user_data->middle_name || strlen(user_data->middle_name) > 255) {
             user_data->err = 2;
             return;
         }
@@ -137,7 +137,7 @@ void start(void * data, const char * elem, const char ** attr) {
         user_data->family_name = strtok(NULL, " ");
 
         // if family_name is exist
-        if (!user_data->family_name) {
+        if (!user_data->family_name || strlen(user_data->family_name) > 255) {
             user_data->err = 2;
             return;
         }
