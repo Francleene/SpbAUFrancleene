@@ -172,6 +172,7 @@ void get_human_from_user_data(human_s * human, user_data_s * user_data) {
 
     for (int i = 0; i < 10; i++) {
         strcpy(human->phones[i], user_data->phone[i]);
+        printf("%s\n", human->phones[i]);
     }
 }
 
@@ -251,6 +252,8 @@ void value(void * data, const char * value, int len) {
     
     // if aint at level #3 return
     if (Depth != 3) return;
+    
+    printf("%d\n", len);
 
     user_data_s * user_data = (user_data_s *)data;
 
@@ -263,7 +266,13 @@ void value(void * data, const char * value, int len) {
         return;
     }
 
-    strcpy_wo_end(user_data->phone[user_data->cur_phone++], value, len);
+    if (user_data->cur_phone == 10) {
+        user_data->err = 3;
+        return;
+    }
+    
+    strcpy_wo_end(user_data->phone[user_data->cur_phone], value, len);
+    user_data->cur_phone += 1;
 }
 
 // init phonebook
@@ -305,7 +314,7 @@ void print_phonebook(phonebook_s * book) {
         printf("middle name: %s\n", book->humans[i].middle_name);
         printf("family name: %s\n", book->humans[i].family_name);
 
-        for (int j = 0; book->humans[i].phones[j][0] && j < 10; j++) {
+        for (int j = 0; j < 10 && book->humans[i].phones[j][0]; j++) {
             printf("phone: %s\n", book->humans[i].phones[j]);
         }
 
@@ -350,8 +359,8 @@ int load_phonebook(const char * filename, phonebook_s * phonebook) {
     XML_SetUserData(parser, user_data);
 
     size_t len = 0; // len of symbols are read
-    size_t buf_len = 1024; // size of buffer
-    char buffer[1024]; // buffer
+    size_t buf_len = 100000; // size of buffer
+    char buffer[buf_len]; // buffer
 
     // parsing when file is not empty
     while ((len = fread(buffer, sizeof(char), buf_len, file))) {
