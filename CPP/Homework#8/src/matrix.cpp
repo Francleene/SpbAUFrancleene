@@ -2,7 +2,7 @@
 // Created by Александр on 18.11.16.
 //
 
-#include "matrix.h"
+#include "../include/matrix.h"
 
 Matrix::Matrix(size_t new_height, size_t new_width): height(new_height), width(new_width) {
     arr = new int*[height];

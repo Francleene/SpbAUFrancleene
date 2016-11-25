@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cassert>
 
-#include "matrix.h"
+#include "../include/matrix.h"
 
 typedef std::map<std::string, Matrix*> var_storage;
 
