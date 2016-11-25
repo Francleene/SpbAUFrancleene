@@ -43,7 +43,7 @@ Matrix & Matrix::operator=(const Matrix & obj) {
     return *this;
 }
 
-Matrix Matrix::operator+(const Matrix &obj) {
+const Matrix Matrix::operator+(const Matrix &obj) const {
     Matrix add_matrix(*this);
 
     add_matrix += obj;
@@ -51,7 +51,7 @@ Matrix Matrix::operator+(const Matrix &obj) {
     return add_matrix;
 }
 
-Matrix & Matrix::operator+=(const Matrix &obj) {
+const Matrix & Matrix::operator+=(const Matrix &obj) {
     for (size_t i = 0; i < height; i++) {
         for (size_t j = 0; j < width; j++) {
             this->arr[i][j] += obj.arr[i][j];
@@ -60,7 +60,7 @@ Matrix & Matrix::operator+=(const Matrix &obj) {
     return *this;
 }
 
-void Matrix::print(FILE * file) {
+void Matrix::print(FILE * file) const {
     for (size_t i = 0; i < height; i++) {
         for (size_t j = 0; j < width; j++) {
             fprintf(file, "%d ", arr[i][j]);
@@ -69,7 +69,7 @@ void Matrix::print(FILE * file) {
     }
 }
 
-Matrix Matrix::operator-(const Matrix &obj) {
+const Matrix Matrix::operator-(const Matrix &obj) const {
     Matrix sub_matrix(obj);
 
     sub_matrix -= *this;
@@ -77,15 +77,15 @@ Matrix Matrix::operator-(const Matrix &obj) {
     return sub_matrix;
 }
 
-Matrix Matrix::operator*(const Matrix &obj) {
-    Matrix mul_matrix(obj);
+const Matrix Matrix::operator*(const Matrix &obj) const {
+    Matrix mul_matrix(*this);
 
-    mul_matrix *= *this;
+    mul_matrix *= obj;
 
     return mul_matrix;
 }
 
-Matrix & Matrix::operator-=(const Matrix & obj) {
+const Matrix & Matrix::operator-=(const Matrix & obj) {
     for (size_t i = 0; i < height; i++) {
         for (size_t j = 0; j < width; j++) {
             this->arr[i][j] -= obj.arr[i][j];
@@ -94,7 +94,7 @@ Matrix & Matrix::operator-=(const Matrix & obj) {
     return *this;
 }
 
-Matrix &Matrix::operator*=(const Matrix &obj) {
+const Matrix &Matrix::operator*=(const Matrix &obj) {
     Matrix mul_matrix(this->height, obj.width);
 
     for (size_t i = 0; i < this->height; i++) {
@@ -109,10 +109,10 @@ Matrix &Matrix::operator*=(const Matrix &obj) {
     std::swap(this->height, mul_matrix.height);
     std::swap(this->width, mul_matrix.width);
 
-    return mul_matrix;
+    return *this;
 }
 
-bool Matrix::operator==(const Matrix & obj) {
+bool Matrix::operator==(const Matrix & obj) const {
     if (this->height != obj.height) return false;
     if (this->width != obj.width) return false;
 
@@ -127,15 +127,15 @@ bool Matrix::operator==(const Matrix & obj) {
     return true;
 }
 
-bool Matrix::operator!=(const Matrix & obj) {
+bool Matrix::operator!=(const Matrix & obj) const {
     return !(*this == obj);
 }
 
-size_t Matrix::get_rows() {
+size_t Matrix::get_rows() const {
     return height;
 }
 
-size_t Matrix::get_cols() {
+size_t Matrix::get_cols() const {
     return width;
 }
 
@@ -145,9 +145,9 @@ void Matrix::set(size_t row, size_t column, int value) {
     }
 }
 
-int Matrix::get(size_t row, size_t column) {
+int Matrix::get(size_t row, size_t column) const {
     if (row < height && column < width) {
-        return arr[row][width];
+        return arr[row][column];
     }
     return 0;
 }
