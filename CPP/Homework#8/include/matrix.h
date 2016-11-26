@@ -6,6 +6,7 @@
 #define MATRIX_MATRIX_H
 
 #include <iostream>
+#include <cstdio>
 
 class Matrix {
 private:
