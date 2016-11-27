@@ -173,7 +173,6 @@ void get_human_from_user_data(human_s * human, user_data_s * user_data) {
 
     for (int i = 0; i < 10; i++) {
         strcpy(human->phones[i], user_data->phone[i]);
-        printf("%s\n", human->phones[i]);
     }
 }
 
@@ -233,7 +232,7 @@ bool is_phone(const char * value, int len) {
         return false;
     }
 
-    for (std::size_t i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
 
         // if symbol aint number then return false
         if (value[i] < '0' || value[i] > '9') {
@@ -263,8 +262,6 @@ void value(void * data, const char * value, int len) {
     
     // if aint at level #3 return
     if (Depth != 3) return;
-    
-    printf("%d\n", len);
 
     user_data_s * user_data = (user_data_s *)data;
 
@@ -378,7 +375,7 @@ int load_phonebook(const char * filename, phonebook_s * phonebook) {
     XML_SetUserData(parser, user_data);
 
     size_t len = 0; // len of symbols are read
-    size_t buf_len = 1; // size of buffer
+    size_t buf_len = 1024; // size of buffer
     char buffer[buf_len]; // buffer
 
     // parsing when file is not empty
@@ -417,7 +414,7 @@ int save_phonebook(const char * filename, phonebook_s * phonebook) {
 
     fprintf(file, "<phonebook>\n");
 
-    for (int i = 0; i < phonebook->size; i++) {
+    for (std::size_t i = 0; i < phonebook->size; i++) {
         fprintf(file, "\t<human name=\"%s %s %s\">\n",
                phonebook->humans[i].name,
                phonebook->humans[i].middle_name,
@@ -468,7 +465,7 @@ void gen_phonebook(phonebook_s * phonebook, size_t size) {
 }
 
 human_s get_human(phonebook_s * book, char * family_name) {
-    for (int i = 0; i < book->size; i++) {
+    for (std::size_t i = 0; i < book->size; i++) {
         if (!strcmp(book->humans[i].family_name, family_name)) {
             return book->humans[i];
         }
