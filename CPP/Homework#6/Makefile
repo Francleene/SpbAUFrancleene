@@ -1,2 +1,2 @@
 main: ./src/main.cpp ./include/names.h
-	g++ ./src/main.cpp -lexpat -o main
+	g++ -Wall -Werror ./src/main.cpp -lexpat -o main

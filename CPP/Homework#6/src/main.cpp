@@ -41,6 +41,7 @@ struct user_data_s {
     // list of tmp phones and his size
     char phone[10][21];
     int cur_phone;
+    int cur_pos;
 
     // XML is correct
     int err;
@@ -180,11 +181,20 @@ void get_human_from_user_data(human_s * human, user_data_s * user_data) {
 void end(void * data, const char * elem) {
     // decrease level
     Depth--;
+    
+    user_data_s * user_data = (user_data_s *)data;
+    
+    if (Depth == 2) {
+        if (user_data->err) return;
+        
+        user_data->phone[user_data->cur_phone][user_data->cur_pos] = 0;
+        
+        user_data->cur_pos = 0;
+        user_data->cur_phone++;
+    }
 
     // is we aint at level #1
     if (Depth != 1) return;
-
-    user_data_s * user_data = (user_data_s *)data;
 
     // if closing tag aint "human"
     if (strcmp(elem, "human")) {
@@ -210,6 +220,7 @@ void end(void * data, const char * elem) {
 
     // prepare user data for new human
     user_data->cur_phone = 0;
+    user_data->cur_pos = 0;
     for (int i = 0; i < 10; i++) {
         user_data->phone[i][0] = 0;
     }
@@ -271,8 +282,15 @@ void value(void * data, const char * value, int len) {
         return;
     }
     
-    strcpy_wo_end(user_data->phone[user_data->cur_phone], value, len);
-    user_data->cur_phone += 1;
+    int i;
+    for (i = 0; i < len && user_data->cur_pos < 20; i++, user_data->cur_pos++) {
+        user_data->phone[user_data->cur_phone][user_data->cur_pos] = value[i];
+    }
+    
+    // if phone number is too long (>20)
+    if (i != len) {
+        user_data->err = 3;
+    }
 }
 
 // init phonebook
@@ -296,6 +314,7 @@ void init_user_data(user_data_s * user_data, phonebook_s * phonebook) {
 
     // set phone's counter to 0
     user_data->cur_phone = 0;
+    user_data->cur_pos = 0;
 
     // set err to 0
     user_data->err = 0;
@@ -359,7 +378,7 @@ int load_phonebook(const char * filename, phonebook_s * phonebook) {
     XML_SetUserData(parser, user_data);
 
     size_t len = 0; // len of symbols are read
-    size_t buf_len = 100000; // size of buffer
+    size_t buf_len = 1; // size of buffer
     char buffer[buf_len]; // buffer
 
     // parsing when file is not empty
