@@ -1,0 +1,81 @@
+//
+// Created by Александр on 02.12.16.
+//
+
+#include "shared_ptr.h"
+
+shared_ptr::shared_ptr(Matrix *obj) {
+    storage_ = new Storage(obj);
+}
+
+shared_ptr::shared_ptr(const shared_ptr &other) {
+    if (this == &other) return;
+    storage_ = other.storage_;
+    storage_->incr();
+}
+
+shared_ptr::~shared_ptr() {
+    storage_->decr();
+    if (storage_->getCounter() == 0) {
+        delete storage_;
+    }
+}
+
+shared_ptr &shared_ptr::operator=(const shared_ptr &other) {
+    if (this == &other) return *this;
+    storage_ = other.storage_;
+    storage_->incr();
+    return *this;
+}
+
+Matrix *shared_ptr::ptr() const {
+    return storage_->getObject();
+}
+
+bool shared_ptr::isNull() const {
+    return storage_->getObject() == NULL;
+}
+
+Matrix *shared_ptr::operator->() const {
+    return storage_->getObject();
+}
+
+Matrix &shared_ptr::operator*() const {
+    return *(storage_->getObject());
+}
+
+void shared_ptr::reset(Matrix *obj) {
+    storage_->decr();
+    if (storage_->getObject() == 0) {
+        delete storage_;
+    }
+
+    storage_ = new Storage(obj);
+}
+
+shared_ptr::Storage::Storage(Matrix * mtx) {
+    data_ = mtx;
+    ref_count_ = 1;
+}
+
+shared_ptr::Storage::~Storage() {
+    if (data_) {
+        delete data_;
+    }
+}
+
+void shared_ptr::Storage::incr() {
+    ref_count_ += 1;
+}
+
+void shared_ptr::Storage::decr() {
+    ref_count_ -= 1;
+}
+
+int shared_ptr::Storage::getCounter() const {
+    return ref_count_;
+}
+
+Matrix *shared_ptr::Storage::getObject() const {
+    return data_;
+}
