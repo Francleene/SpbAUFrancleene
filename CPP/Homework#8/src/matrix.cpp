@@ -70,9 +70,9 @@ void Matrix::print(FILE * file) const {
 }
 
 const Matrix Matrix::operator-(const Matrix &obj) const {
-    Matrix sub_matrix(obj);
+    Matrix sub_matrix(*this);
 
-    sub_matrix -= *this;
+    sub_matrix -= obj;
 
     return sub_matrix;
 }
