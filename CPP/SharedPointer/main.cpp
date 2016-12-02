@@ -1,9 +1,9 @@
-#include "shared_ptr.h"
-
 #include <iostream>
 #include <cassert>
 #include <string>
 #include <map>
+
+#include "shared_ptr.h"
 
 Matrix* make_matrix(int seed) {
     const size_t n = 2;
