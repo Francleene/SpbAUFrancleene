@@ -9,7 +9,6 @@ shared_ptr::shared_ptr(Matrix *obj) {
 }
 
 shared_ptr::shared_ptr(const shared_ptr &other) {
-    if (this == &other) return;
     storage_ = other.storage_;
     storage_->incr();
 }
