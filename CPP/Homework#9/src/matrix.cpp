@@ -1,14 +1,10 @@
-//
-// Created by Александр on 02.12.16.
-//
-
 #include "matrix.h"
 
 #include <cassert>
 #include <algorithm>
 
 Matrix::Matrix(std::size_t r, std::size_t c) :
-        _rows(r), _cols(c), _data(new int*[_rows]()) {
+_rows(r), _cols(c), _data(new int*[_rows]()) {
     for (std::size_t row_i = 0; row_i != _rows; ++row_i) {
         _data[row_i] = new int[_cols]();
     }

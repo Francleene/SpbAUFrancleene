@@ -8,13 +8,13 @@
 Matrix* make_matrix(int seed) {
     const size_t n = 2;
     Matrix* res = new Matrix(n, n);
-
+    
     for (size_t i = 0; i < n; ++i) {
         for (size_t j = 0; j < n; ++j) {
             res->set(i, j, seed + i * n + j);
         }
     }
-
+    
     return res;
 }
 
@@ -32,7 +32,7 @@ void test_simple() {
     Matrix* m = make_matrix(1);
     Matrix* ref = make_matrix(1);
     shared_ptr ptr(m);
-
+    
     assert(!ptr.isNull());
     assert(ptr.ptr() == m);
     assert(*ptr.ptr() == *ref);
@@ -42,19 +42,19 @@ void test_simple() {
 void test_operators() {
     Matrix* ref = make_matrix(1);
     shared_ptr ptr = make_shared(1);
-
+    
     assert(*ptr == *ref);
     assert(ptr->get_rows() == 2);
     assert(ptr->get_cols() == 2);
     assert((*ptr).get(0, 0) == 1);
-
+    
     delete ref;
 }
 
 void test_assignment() {
     shared_ptr p1 = make_shared(1);
     shared_ptr p2 = make_shared(2);
-
+    
     assert(*p1 == *make_shared(1));
     assert(*p2 == *make_shared(2));
     p1 = p2;
@@ -67,11 +67,11 @@ void test_assignment() {
 void test_swap() {
     shared_ptr p1 = make_shared(1);
     shared_ptr p2 = make_shared(2);
-
+    
     std::swap(p1, p2);
     assert(*p1 == *make_shared(2));
     assert(*p2 == *make_shared(1));
-
+    
     std::swap(p1, p1);
     assert(*p1 == *make_shared(2));
 }
@@ -79,7 +79,7 @@ void test_swap() {
 void test_reset() {
     shared_ptr p1 = make_shared(1);
     Matrix* m = make_matrix(2);
-
+    
     p1.reset(m);
     assert(p1.ptr() == m);
     assert(*p1 == *make_shared(2));
@@ -92,7 +92,7 @@ void test_shared() {
     Matrix* ref = make_matrix(1);
     shared_ptr p1(ref);
     shared_ptr p2(p1);
-
+    
     assert(p1.ptr() == ref);
     assert(p2.ptr() == ref);
     assert(*p1 == *make_shared(1));
@@ -108,35 +108,35 @@ void test_shared_swap() {
     shared_ptr a(make_matrix(1));
     shared_ptr a1(a);
     assert(*a == *make_shared(1));
-
+    
     shared_ptr a2;
     a2 = a;
     assert(*a2 == *make_shared(1));
-
+    
     shared_ptr b(make_matrix(6));
     shared_ptr b1;
     b1 = b;
     assert(*b1 == *make_shared(6));
-
+    
     shared_ptr b2(b1);
     assert(*b2 == *make_shared(6));
-
+    
     std::swap(a, b);
     assert(*a == *make_shared(6));
     assert(*b == *make_shared(1));
-
+    
     std::swap(a, b1);
     assert(*a == *make_shared(6));
     assert(*b1 == *make_shared(6));
-
+    
     std::swap(a, b);
     assert(*a == *make_shared(1));
     assert(*b == *make_shared(6));
-
+    
     std::swap(a1, b1);
     assert(*a1 == *make_shared(6));
     assert(*b1 == *make_shared(1));
-
+    
     std::swap(a1, b1);
     std::swap(a2, b2);
     assert(*a2 == *make_shared(6));
@@ -191,7 +191,7 @@ void run_all(const test_map& m) {
 int main(int argc, char* argv[]) {
     test_map tests;
     init_test_map(tests);
-
+    
     if (argc < 2 ||
         tests.find(argv[1]) == tests.end()) {
         run_all(tests);
@@ -199,8 +199,8 @@ int main(int argc, char* argv[]) {
     else {
         tests[argv[1]]();
     }
-
+    
     std::cout << "OK" << std::endl;
-
+    
     return 0;
 }
