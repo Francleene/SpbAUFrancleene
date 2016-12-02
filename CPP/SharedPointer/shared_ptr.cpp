@@ -2,6 +2,8 @@
 // Created by Александр on 02.12.16.
 //
 
+#include <algorithm>
+
 #include "shared_ptr.h"
 
 shared_ptr::shared_ptr(Matrix *obj) {
