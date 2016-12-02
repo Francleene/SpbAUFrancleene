@@ -21,9 +21,8 @@ shared_ptr::~shared_ptr() {
 }
 
 shared_ptr &shared_ptr::operator=(const shared_ptr &other) {
-    if (this == &other) return *this;
-    storage_ = other.storage_;
-    storage_->incr();
+    shared_ptr tmp(other);
+    std::swap(storage_, tmp.storage_);
     return *this;
 }
 
@@ -44,12 +43,8 @@ Matrix &shared_ptr::operator*() const {
 }
 
 void shared_ptr::reset(Matrix *obj) {
-    storage_->decr();
-    if (storage_->getObject() == 0) {
-        delete storage_;
-    }
-
-    storage_ = new Storage(obj);
+    shared_ptr tmp(obj);
+    std::swap(storage_, tmp.storage_);
 }
 
 shared_ptr::Storage::Storage(Matrix * mtx) {
