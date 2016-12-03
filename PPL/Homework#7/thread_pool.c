@@ -24,23 +24,31 @@ void do_task(Task * task) {
     pthread_mutex_unlock(&task->mutex);
 }
 
+int is_finished(TaskQueue * tq) {
+	pthread_mutex_lock(&tq->finished_mutex);
+	int finished = tq->finished;
+	pthread_mutex_unlock(&tq->finished_mutex);
+	return finished;
+}
+
 void * do_tasks(void * ptr) {
     struct TaskQueue * tq = (struct TaskQueue *)ptr;
 
     for(;;) {
         pthread_mutex_lock(&tq->mutex);
 
-        while (tq->task_head == NULL && !tq->finished) {
+        while (tq->task_head == NULL && !is_finished(tq)) {
             pthread_cond_wait(&tq->cond, &tq->mutex);
         }
 
-        if (!tq->finished) {
+        if (tq->task_head != NULL) {
             TaskNode * task_node = pop_task(tq);
             pthread_mutex_unlock(&tq->mutex);
 
             pthread_mutex_lock(&task_node->task->mutex);
             task_node->task->should_solve = 1;
             do_task(task_node->task);
+			free(task_node);
         } else {
             pthread_mutex_unlock(&tq->mutex);
             break;
@@ -64,6 +72,7 @@ struct TaskNode * pop_task(struct TaskQueue * tq) {
 
 void task_queue_init(struct TaskQueue * tq)
 {
+	pthread_mutex_init(&tq->finished_mutex, NULL);
     pthread_mutex_init(&tq->mutex, NULL);
     pthread_cond_init(&tq->cond, NULL);
 
@@ -97,11 +106,18 @@ void thpool_wait(Task * task) {
     do_task(task);
 }
 
+void set_finished(TaskQueue * tq) {
+	pthread_mutex_lock(&tq->finished_mutex);
+	tq->finished = 1;
+	pthread_mutex_unlock(&tq->finished_mutex);	
+}
+
 void thpool_finit(ThreadPool* thpool) {
-    thpool->tasks.finished = 1;
+    set_finished(&thpool->tasks);
     pthread_cond_broadcast(&thpool->tasks.cond);
 
     for (size_t i = 0; i < thpool->threads_num; i++) {
+		pthread_cond_signal(&thpool->tasks.cond);
         pthread_join(thpool->threads[i], NULL);
     }
     free(thpool->threads);
