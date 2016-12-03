@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "thread_pool.h"
+#include "../include/thread_pool.h"
 
 
 void do_task(Task * task) {
@@ -54,6 +54,7 @@ void * do_tasks(void * ptr) {
             break;
         }
     }
+    return (void *)tq;
 }
 
 void add_task(TaskQueue * tq, Task * task) {

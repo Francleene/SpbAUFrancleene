@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "thread_pool.h"
+#include "../include/thread_pool.h"
 
 typedef struct TreeNode {
 	int need_waiting;
@@ -151,7 +151,7 @@ void start_quick_sort(int * arr, int size, size_t threads_num, int recur_depth) 
 void check_sort(int * arr, int size) {
 	for (int i = 1; i < size; i++) {
 		if (arr[i] < arr[i - 1]) {
-			printf("You're a fucking stupid ass! It doesn't work!\n");
+			printf("It doesn't work!\n");
 			exit(1);
 		}
 	}
