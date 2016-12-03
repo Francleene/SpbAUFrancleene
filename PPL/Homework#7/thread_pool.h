@@ -27,6 +27,7 @@ typedef struct TaskQueue {
     TaskNode * task_head;
     int finished;
 
+	pthread_mutex_t finished_mutex;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
 } TaskQueue;
