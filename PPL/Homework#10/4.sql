@@ -1,17 +1,12 @@
 SELECT
  Country.Name,
- COUNT(bCities.bCountryCode)
+ COUNT(City.Id)
 FROM
  Country
-INNER JOIN
-(
-	SELECT 
- 	 City.CountryCode AS bCountryCode
-	FROM
-	 City
-	WHERE
-	 City.Population >= 1000000
-) bCities
-ON Country.Code = bCities.bCountryCode
-GROUP BY 
- CountryCode;
+LEFT JOIN City ON Country.Code = City.CountryCode 
+			  AND City.Population >= 1000000
+GROUP BY
+ Country.Code
+ORDER BY 
+ 2 DESC,
+ 1 ASC;
