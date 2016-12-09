@@ -15,7 +15,7 @@ Circle::Circle(int init_id, int init_x, int init_y, int init_radius, const char 
         label = new char[1];
         label[0] = 0;
     } else {
-        label = new char[strlen(init_label)];
+        label = new char[strlen(init_label) + 1];
         strcpy(label, init_label);
     }
 }
