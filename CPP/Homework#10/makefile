@@ -1,0 +1,25 @@
+all: make_dir main
+
+make_dir:
+	mkdir -p bin
+
+main: ./bin/figure.o ./bin/circle.o ./bin/rectangle.o ./bin/scheme.o ./bin/main.o 
+	g++ ./bin/main.o ./bin/scheme.o ./bin/rectangle.o ./bin/scheme.o ./bin/main.o ./bin/figure.o ./bin/circle.o -o main
+
+./bin/main.o: ./src/main.cpp ./include/scheme.h
+	g++ -c ./src/main.cpp -o ./bin/main.o
+
+./bin/scheme.o: ./src/scheme.cpp ./include/scheme.h ./include/figure.h ./include/circle.h ./include/rectangle.h
+	g++ -c ./src/scheme.cpp -o ./bin/scheme.o
+
+./bin/circle.o: ./src/circle.cpp ./include/circle.h ./include/figure.h
+	g++ -c ./src/circle.cpp -o ./bin/circle.o
+
+./bin/rectangle.o: ./src/rectangle.cpp ./include/rectangle.h ./include/figure.h
+	g++ -c ./src/rectangle.cpp -o ./bin/rectangle.o
+
+./bin/figure.o: ./src/figure.cpp ./include/figure.h
+	g++ -c ./src/figure.cpp -o ./bin/figure.o
+
+clean:
+	rm -rf bin main
