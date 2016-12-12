@@ -58,7 +58,7 @@ Figure *Scheme::is_inside_figure(int x, int y) {
             return data[i];
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 void Scheme::move(int id, int new_x, int new_y) {
