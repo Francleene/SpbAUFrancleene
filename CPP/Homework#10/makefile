@@ -1,27 +1,27 @@
-flags = -Wall -Werror
+CXX = g++
+CXXFLAGS = -O2 -Wall -Werror -std=c++11 -Iinclude
+LDFLAGS = 
 
-all: make_dir main
+EXE = main
+SRCDIR = src
+BINDIR = bin
 
-make_dir:
-	mkdir -p bin
+OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(BINDIR)/%.o,$(wildcard $(SRCDIR)/*.cpp))
 
-main: ./bin/figure.o ./bin/circle.o ./bin/rectangle.o ./bin/scheme.o ./bin/main.o 
-	g++ ./bin/figure.o ./bin/circle.o ./bin/rectangle.o ./bin/scheme.o ./bin/main.o -o main
+all: $(EXE)
 
-./bin/main.o: ./src/main.cpp ./include/scheme.h
-	g++ $(flags) -c ./src/main.cpp -o ./bin/main.o
+$(EXE): $(BINDIR) $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(EXE) $(LDFLAGS)
+	
+$(BINDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
-./bin/scheme.o: ./src/scheme.cpp ./include/scheme.h ./include/figure.h ./include/circle.h ./include/rectangle.h
-	g++ $(flags) -c ./src/scheme.cpp -o ./bin/scheme.o
+include $(wildcard $(BINDIR)/*.d)
 
-./bin/circle.o: ./src/circle.cpp ./include/circle.h ./include/figure.h
-	g++ $(flags) -c ./src/circle.cpp -o ./bin/circle.o
-
-./bin/rectangle.o: ./src/rectangle.cpp ./include/rectangle.h ./include/figure.h
-	g++ $(flags) -c ./src/rectangle.cpp -o ./bin/rectangle.o
-
-./bin/figure.o: ./src/figure.cpp ./include/figure.h
-	g++ $(flags) -c ./src/figure.cpp -o ./bin/figure.o
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
 clean:
-	rm -rf bin main
+	rm -rf $(BINDIR) $(EXE)
+
+.PHONY: clean all
