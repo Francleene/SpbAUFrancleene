@@ -15,7 +15,6 @@ typedef struct Task {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     int solved;
-    int should_solve;
 } Task;
 
 typedef struct TaskNode {
