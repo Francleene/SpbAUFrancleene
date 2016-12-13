@@ -9,13 +9,6 @@ void do_task(Task * task) {
         return;
     }
 
-    // if task ain't solved and we SHOULD NOT solve it then just wait
-    if (!task->should_solve) {
-        pthread_cond_wait(&task->cond, &task->mutex);
-        pthread_mutex_unlock(&task->mutex);
-        return;
-    }
-
     task->func(task->arg);
     task->solved = 1;
 
@@ -39,7 +32,6 @@ void * do_tasks(void * ptr) {
             pthread_mutex_unlock(&tq->mutex);
 
             pthread_mutex_lock(&task_node->task->mutex);
-            task_node->task->should_solve = 1;
             do_task(task_node->task);
 			free(task_node);
         } else {
@@ -96,7 +88,10 @@ void thpool_submit(struct ThreadPool* pool, Task * task) {
 
 void thpool_wait(Task * task) {
     pthread_mutex_lock(&task->mutex);
-    do_task(task);
+	while (!task->solved) {
+		pthread_cond_wait(&task->cond, &task->mutex);
+	}
+	pthread_mutex_unlock(&task->mutex);
 }
 
 void set_finished(TaskQueue * tq) {
@@ -121,7 +116,6 @@ void init_task(Task * task, void (* init_func)(void *), void * init_arg)
     task->arg = init_arg;
 
     task->solved = 0;
-    task->should_solve = 0;
 
     pthread_mutex_init(&task->mutex, NULL);
     pthread_cond_init(&task->cond, NULL);
