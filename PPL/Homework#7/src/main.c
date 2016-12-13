@@ -166,14 +166,14 @@ int main(int argc, char ** argv) {
 	srand(42);
 
     int	* arr = (int *)malloc(size * sizeof(int));
+
     for (int i = 0; i < size; i++) {
     	arr[i] = rand();
     }
 
     start_quick_sort(arr, size, num_threads, rec_depth);
 
-	check_sort(arr, size);
+    check_sort(arr, size);
 	
-
     free(arr);
 }
