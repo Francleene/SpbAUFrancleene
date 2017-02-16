@@ -292,6 +292,9 @@ EmployeesArray &EmployeesArray::operator=(const EmployeesArray &other) {
 }
 
 EmployeesArray::~EmployeesArray() {
+    for (int i = 0; i < _size; i++) {
+	delete _employees[i];
+    }
     delete[] _employees;
 }
 
