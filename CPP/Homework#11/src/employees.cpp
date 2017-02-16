@@ -14,7 +14,7 @@ std::ofstream &operator<<(std::ofstream &os, Employee &obj);
 // static utilities
 static int get_cstring_len_binary(std::ifstream &is);
 static char *double_capacity(char *old_cstring, size_t old_capacity);
-static bool can_be_in_name(char ch);
+static bool is_delimiter(char ch);
 
 // static read function
 static char *  read_cstring_binary(std::ifstream &is);
@@ -71,11 +71,10 @@ static char *double_capacity(char *old_cstring, size_t old_capacity) {
     return new_cstring;
 }
 
-static bool can_be_in_name(char ch) {
-    return ('a' <= ch && ch <= 'z') ||
-           ('A' <= ch && ch <= 'Z') ||
-           ('0' <= ch && ch <= '9') ||
-            ch == '.';
+static bool is_delimiter(char ch) {
+    return (ch == ' '  || 
+			ch == '\t' ||
+			ch == '\n'   );
 }
 
 static char *read_cstring_binary(std::ifstream &is) {
@@ -93,9 +92,9 @@ char *read_cstring_terminal(std::istream &is) {
     char ch;
     do {
         is.get(ch);
-    } while (!can_be_in_name(ch));
+    } while (is_delimiter(ch));
 
-    while (can_be_in_name(ch)) {
+    while (!is_delimiter(ch)) {
         if (size == capacity) {
             cstring = double_capacity(cstring, capacity);
             capacity *= 2;
