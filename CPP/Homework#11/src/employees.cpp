@@ -299,7 +299,7 @@ EmployeesArray::~EmployeesArray() {
 
 int EmployeesArray::total_salary() const {
     int32_t summ = 0;
-    for (size_t i = 0; i < _size; i++) {
+    for (int i = 0; i < _size; i++) {
         summ += _employees[i]->salary();
     }
     return summ;
@@ -340,11 +340,12 @@ std::istream &operator>>(std::istream &is, EmployeesArray &obj) {
 }
 
 std::ostream &operator<<(std::ostream &os, EmployeesArray &obj) {
-    for (size_t i = 0; i < obj._size; i++) {
+    for (int i = 0; i < obj._size; i++) {
         os << i + 1 << ". " << *obj._employees[i];
     }
 
     os << "== Total salary: " << obj.total_salary() << std::endl;
+	std::cout << std::endl;
 
     return os;
 }
@@ -353,7 +354,7 @@ std::ifstream &operator>>(std::ifstream &is, EmployeesArray &obj) {
     int32_t type, num_worker = read_int32_t_binary(is);
     Employee *new_worker;
 
-    for (size_t i = 0; i < num_worker; i++) {
+    for (int i = 0; i < num_worker; i++) {
         type = read_int32_t_binary(is);
 
         if (type == 1) { new_worker = new Developer; }
@@ -368,7 +369,7 @@ std::ifstream &operator>>(std::ifstream &is, EmployeesArray &obj) {
 std::ofstream &operator<<(std::ofstream &os, EmployeesArray &obj) {
     write_int32_t_binary(os, obj._size);
 
-    for (size_t i = 0; i < obj._size; i++) {
+    for (int i = 0; i < obj._size; i++) {
         os << *obj._employees[i];
     }
 
