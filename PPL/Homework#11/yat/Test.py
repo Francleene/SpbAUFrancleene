@@ -30,9 +30,6 @@ class Utils:
 		num = Number(value)
 		return num
 
-	def rand_binary_operation(self):
-		pass
-
 class TestNumber(Utils):
 	def test_number_value(self):
 		for i in range(50):
@@ -430,11 +427,11 @@ class TestConditional(Utils):
 			Conditional(Number(0), [Number(230)], None).evaluate(scope)
 			Conditional(Number(1), None, [Number(239)]).evaluate(scope)
 
-			Conditional(Number(0), [], []).evaluate(scope).evaluate(scope)
-			Conditional(Number(1), [], []).evaluate(scope).evaluate(scope)
+			Conditional(Number(0), [], []).evaluate(scope)
+			Conditional(Number(1), [], []).evaluate(scope)
 
-			Conditional(Number(0), None, None).evaluate(scope).evaluate(scope)
-			Conditional(Number(1), None, None).evaluate(scope).evaluate(scope)
+			Conditional(Number(0), None, None).evaluate(scope)
+			Conditional(Number(1), None, None).evaluate(scope)
 			assert True
 		except:
 			assert False
@@ -474,6 +471,15 @@ class TestScope(Utils):
 
 		parent_func = Function([], [Number(-239)])
 		child_func  = Function([], [Number(239)])
+
+		parent["num"]  = parent_num
+		parent["func"] = parent_func
+
+		child["num"]  = child_num
+		child["func"] = child_func
+
+		assert child["num"]  is child_num
+		assert child["func"] is child_func
 
 class TestReference(Utils):
 	def test_return_value(self):

@@ -1,287 +1,66 @@
-from operator import add, sub, mul, truediv, mod, eq, ne, lt, gt, le, ge, neg
+import operator
+import pytest
 
-
-class Scope:
-
-    """Scope - представляет доступ к значениям по именам
-    (к функциям и именованным константам).
-    Scope может иметь родителя, и если поиск по имени
-    в текущем Scope не успешен, то если у Scope есть родитель,
-    то поиск делегируется родителю.
-    Scope должен поддерживать dict-like интерфейс доступа
-    (см. на специальные функции __getitem__ и __setitem__)
-    """
-
+class Scope(object):
     def __init__(self, parent=None):
-        self.d = {}
+        self.dict = dict()
         self.parent = parent
 
-    def __getitem__(self, name):
-        if name in self.d:
-            return self.d[name]
+    def __getitem__(self, item):
+        if item in self.dict:
+            return self.dict[item]
+        if self.parent:
+            return self.parent[item]
         else:
-            return self.parent[name]
+            raise Exception
 
-    def __setitem__(self, name, value):
-        self.d[name] = value
+    def __setitem__(self, key, value):
+        self.dict[key] = value
 
 
 class Number:
-
-    """Number - представляет число в программе.
-    Все числа в нашем языке целые."""
-
     def __init__(self, value):
-        self.value = value
+        self.value = int(value)
 
     def evaluate(self, scope):
         return self
 
-    def accept(self, visitor):
-        return visitor.visitNumber(self)
-
-    def __add__(self, other):
-        return Number(self.value + other.value)
-
-    def __sub__(self, other):
-        return Number(self.value - other.value)
-
-    def __mul__(self, other):
-        return Number(self.value * other.value)
-
-    def __truediv__(self, other):
-        return Number(self.value // other.value)
-
-    def __mod__(self, other):
-        return Number(self.value % other.value)
-
-    def __eq__(self, other):
-        return Number(int(self.value == other.value))
-
-    def __ne__(self, other):
-        return Number(int(self.value != other.value))
-
-    def __lt__(self, other):
-        return Number(int(self.value < other.value))
-
-    def __le__(self, other):
-        return Number(int(self.value <= other.value))
-
-    def __gt__(self, other):
-        return Number(int(self.value > other.value))
-
-    def __ge__(self, other):
-        return Number(int(self.value >= other.value))
-
-    def __neg__(self):
-        return Number(int(-self.value))
-
-    def __not__(self):
-        return Number(int(not self.value))
-
-
-class Function:
-
-    """Function - представляет функцию в программе.
-    Функция - второй тип поддерживаемый языком.
-    Функции можно передавать в другие функции,
-    и возвращать из функций.
-    Функция состоит из тела и списка имен аргументов.
-    Тело функции это список выражений,
-    т. е.  у каждого из них есть метод evaluate.
-    Во время вычисления функции (метод evaluate),
-    все объекты тела функции вычисляются последовательно,
-    и результат вычисления последнего из них
-    является результатом вычисления функции.
-    Список имен аргументов - список имен
-    формальных параметров функции."""
-
-    def __init__(self, args, body):
-        self.args = args
-        self.body = body
-
-    def evaluate(self, scope):
-        if len(self.body) == 0:
-            return Number(239)
-        
-        for expr in self.body[:-1]:
-            expr.evaluate(scope)
-
-        return self.body[-1].evaluate(scope)
-
-    def __eq__(self, other):
-        return (self.args == other.args and
-                self.body == other.body)
-
-
-class FunctionDefinition:
-
-    """FunctionDefinition - представляет определение функции,
-    т. е. связывает некоторое имя с объектом Function.
-    Результатом вычисления FunctionDefinition является
-    обновление текущего Scope - в него
-    добавляется новое значение типа Function."""
-
-    def __init__(self, name, function):
-        self.name = name
-        self.function = function
-
-    def evaluate(self, scope):
-        scope[self.name] = self.function
-        return self.function
-
-    def accept(self, visitor):
-        return visitor.visitFunctionDefinition(self)
-
-    def __eq__(self, other):
-        return (self.name == other.name and
-                self.function == other.function)
-
-
-class Conditional:
-
-    """
-    Conditional - представляет ветвление в программе, т. е. if.
-    """
-
-    def __init__(self, condtion, if_true, if_false=None):
-        self.condition = condtion
-        self.if_true = if_true
-        self.if_false = if_false
-
-    def evaluate(self, scope):
-        cond = self.condition.evaluate(scope)
-
-        branch = self.if_true if cond.value else self.if_false
-
-        if branch:
-            for expr in branch[:-1]:
-                expr.evaluate(scope)
-            return branch[-1].evaluate(scope)
-        else:
-            return Number(239)
-
-    def accept(self, visitor):
-        return visitor.visitConditional(self)
-
-    def __eq__(self, other):
-        return (self.condition == other.condition and
-                self.if_true == other.if_true and
-                self.if_false == other.if_false)
-
-
-class Print:
-
-    """Print - печатает значение выражения на отдельной строке."""
-
-    def __init__(self, expr):
-        self.expr = expr
-
-    def evaluate(self, scope):
-        num = self.expr.evaluate(scope)
-        print(num.value)
-        return num
-
-    def accept(self, visitor):
-        return visitor.visitPrint(self)
-
-    def __eq__(self, other):
-        return self.expr == other.expr
-
-
-class Read:
-
-    """Read - читает число из стандартного потока ввода
-     и обновляет текущий Scope.
-     Каждое входное число располагается на отдельной строке
-     (никаких пустых строк и лишних символов не будет).
-     """
-
-    def __init__(self, name):
-        self.name = name
-
-    def evaluate(self, scope):
-        value = Number(int(input()))
-        scope[self.name] = value
-        return value
-
-    def accept(self, visitor):
-        return visitor.visitRead(self)
-
-    def __eq__(self, other):
-        return self.name - other.name
-
-
-class FunctionCall:
-
-    """
-    FunctionCall - представляет вызов функции в программе.
-    В результате вызова функции должен создаваться новый объект Scope,
-    являющий дочерним для текущего Scope
-    (т. е. текущий Scope должен стать для него родителем).
-    Новый Scope станет текущим Scope-ом при вычислении тела функции.
-    """
-
-    def __init__(self, fun_expr, args):
-        self.expr = fun_expr
-        self.args = args
-
-    def evaluate(self, scope):
-        self.func = self.expr.evaluate(scope)
-
-        child = Scope(scope)
-        for name, arg in zip(self.func.args, self.args):
-            child[name] = arg.evaluate(scope)
-
-        return self.func.evaluate(child)
-
-    def accept(self, visitor):
-        return visitor.visitFunctionCall(self)
-
-    def __eq__(self, other):
-        return (self.expr == other.expr and
-                self.args == other.args)
-
 
 class Reference:
-
-    """Reference - получение объекта
-    (функции или переменной) по его имени."""
-
     def __init__(self, name):
         self.name = name
 
     def evaluate(self, scope):
         return scope[self.name]
 
-    def accept(self, visitor):
-        return visitor.visitReference(self)
 
-    def __eq__(self, other):
-        return self.name == other.name
+class UnaryOperation:
+    ops = {"-": operator.neg,
+            "!":operator.not_}
+
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+
+    def evaluate(self, scope):
+        a = self.expr.evaluate(scope).value
+        return Number(self.ops[self.op](a))
 
 
 class BinaryOperation:
-
-    """BinaryOperation - представляет бинарную операцию над двумя выражениями.
-    Результатом вычисления бинарной операции является объект Number.
-    Поддерживаемые операции:
-    “+”, “-”, “*”, “/”, “%”, “==”, “!=”,
-    “<”, “>”, “<=”, “>=”, “&&”, “||”."""
-
-    oper = {"+":      add,
-            "-":      sub,
-            "*":      mul,
-            "/":  truediv,
-            "%":      mod,
-            "==":      eq,
-            "!=":      ne,
-            "<":       lt,
-            ">":       gt,
-            "<=":      le,
-            ">=":      ge,
-            "&&": lambda first, second:  Number(int(first.value and second.value)),
-            "||": lambda first, second:  Number(int(first.value or second.value))}
+    ops = {"+": operator.add,
+            "-":operator.sub,
+            "*":operator.mul,
+            "/":operator.floordiv,
+            "%":operator.mod,
+            "==":operator.eq,
+            "!=":operator.ne,
+            "<":operator.lt,
+            ">":operator.gt,
+            "<=":operator.le,
+            ">=":operator.ge,
+            "&&":lambda x, y: bool(x and y),
+            "||":lambda x, y: bool(x or y)}
 
     def __init__(self, lhs, op, rhs):
         self.lhs = lhs
@@ -289,130 +68,111 @@ class BinaryOperation:
         self.op = op
 
     def evaluate(self, scope):
-        left_num = self.lhs.evaluate(scope)
-        right_num = self.rhs.evaluate(scope)
-
-        return BinaryOperation.oper[self.op](left_num, right_num)
-
-    def accept(self, visitor):
-        return visitor.visitBinaryOperation(self)
-
-    def __eq__(self, other):
-        return (self.lhs == other.lhs and
-                self.rhs == other.rhs and
-                self.op == other.op)
+        l = self.lhs.evaluate(scope).value
+        r = self.rhs.evaluate(scope).value
+        return Number(self.ops[self.op](l, r))
 
 
-class UnaryOperation:
+class Function:
+    def __init__(self, args, body):
+        self.body = body
+        self.args = args
 
-    """UnaryOperation - представляет унарную операцию над выражением.
-    Результатом вычисления унарной операции является объект Number.
-    Поддерживаемые операции: “-”, “!”."""
+    def evaluate(self, scope):
+        last = Number(0)
+        for x in self.body:
+            last = x.evaluate(scope)
+        return last
 
-    oper = {"-": neg,
-            "!": lambda number: Number(int(not number.value))}
 
-    def __init__(self, op, expr):
-        self.op = op
+class FunctionDefinition:
+    def __init__(self, name, function):
+        self.name = name
+        self.func = function
+
+    def evaluate(self, scope):
+        scope[self.name] = self.func
+        return self.func
+
+
+class FunctionCall:
+    def __init__(self, fun_expr, args):
+        self.args = args
+        self.fun_expr = fun_expr
+
+    def evaluate(self, scope):
+        func = self.fun_expr.evaluate(scope)
+        call_scope = Scope(scope)
+        results = [x.evaluate(scope) for x in self.args]
+        for i, x in enumerate(func.args):
+            call_scope[x] = results[i]
+        return func.evaluate(call_scope)
+
+
+class Conditional:
+    def __init__(self, condition, if_true, if_false = None):
+        self.condition = condition
+        self.if_true = if_true
+        self.if_false = if_false
+
+    def evaluate(self, scope):
+        val = self.condition.evaluate(scope).value
+        if val and self.if_true:
+            body = self.if_true
+        elif self.if_false:
+            body = self.if_false
+        else:
+            body = []
+        res = None
+        for stmt in body:
+            res = stmt.evaluate(scope)
+        return res
+
+
+class Print:
+    def __init__(self, expr):
         self.expr = expr
 
     def evaluate(self, scope):
-        num = self.expr.evaluate(scope)
-
-        return UnaryOperation.oper[self.op](num)
-
-    def accept(self, visitor):
-        return visitor.visitUnaryOperation(self)
-
-    def __eq__(self, other):
-        return (self.op == other.op and
-                self.expr == other.expr)
+        a = self.expr.evaluate(scope)
+        print(a.value)
+        return a
 
 
-def example():
+class Read:
+    def __init__(self, name):
+        self.name = name
+
+    def evaluate(self, scope):
+        a = int(input())
+        scope[self.name] = Number(a)
+        return Number(a)
+
+
+def test():
+    #Example
     parent = Scope()
-    parent["foo"] = Function(('hello', 'world'),
-                             [Print(BinaryOperation(Reference('hello'),
-                                                    '+',
-                                                    Reference('world')))])
     parent["bar"] = Number(10)
     scope = Scope(parent)
-    assert 10 == scope["bar"].value
+    parent["foo"] = Function(('hello', 'world'),
+                             [Print(BinaryOperation(Reference('hello'), '+', Reference('world')))])
+    assert type(FunctionCall(FunctionDefinition('foo', parent['foo']),
+                 [Number(5), UnaryOperation('-', Number(3))]).evaluate(scope)) == Number
+    assert scope["bar"].value == 10
     scope["bar"] = Number(20)
     assert scope["bar"].value == 20
-    print('It should print 2: ', end=' ')
-    FunctionCall(FunctionDefinition('foo', parent['foo']),
-                 [Number(5), UnaryOperation('-', Number(3))]).evaluate(scope)
+    assert type(scope["bar"]) == Number
 
+    assert BinaryOperation(Number(5), "&&", Number(0)).evaluate(scope).value == 0
+    assert BinaryOperation(Number(5), "&&", Number(-2)).evaluate(scope).value == 1
+    assert UnaryOperation("!", Number(5)).evaluate(scope).value == 0
 
-def my_tests():
-    scope = Scope()
-
-    Print(Number(10)).evaluate(scope)
-    Print(BinaryOperation(Number(10), "+", Number(20))).evaluate(scope)
-
-    scope["a"] = Number(10)
-    scope["b"] = Number(20)
-
-    Print(Reference("a")).evaluate(scope)
-    Print(BinaryOperation(Reference("a"), "*", Reference("b"))).evaluate(scope)
-
-    child_scope = Scope(scope)
-
-    Print(Reference("a")).evaluate(child_scope)
-
-    child_scope["a"] = Number(40)
-    Print(Reference("a")).evaluate(child_scope)
-
-    scope["print10"] = Function((), [Print(Number(10))])
-    FunctionCall(Reference("print10"), ()).evaluate(scope)
-
-    scope["print_sum"] = Function(("first", "second"), [Print(BinaryOperation(Reference("first"), "+", Reference("second")))])
-    FunctionCall(Reference("print_sum"), [Number(10), Number(20)]).evaluate(scope)
-    FunctionCall(Reference("print_sum"), [Reference("a"), Reference("b")]).evaluate(child_scope)
-
-    FunctionDefinition("print_sub", Function(("first", "second"), [Print(BinaryOperation(Reference("first"), "-", Reference("second")))])).evaluate(scope)
-    FunctionCall(Reference("print_sub"), [Number(10), Number(20)]).evaluate(scope)
-    FunctionCall(Reference("print_sub"), [Reference("a"), Reference("b")]).evaluate(child_scope)
-
-    FunctionDefinition("print_sub", Function(("first", "second"), [Print(BinaryOperation(Reference("second"), "-", Reference("first")))])).evaluate(child_scope)
-    FunctionCall(Reference("print_sub"), [Reference("a"), Reference("b")]).evaluate(child_scope)
-
-    FunctionDefinition("print(a*b*c)", Function(("first", "second", "third"), [Print(BinaryOperation(Reference("first"), "*", BinaryOperation(Reference("second"), "*", Reference("third"))))])).evaluate(scope)
-    FunctionCall(Reference("print(a*b*c)"), [Number(5), Number(7), Number(11)]).evaluate(scope)
-
-    FunctionDefinition("mul", Function(("first", "second"), [BinaryOperation(Reference("first"), "*", Reference("second"))])).evaluate(scope)
-    FunctionDefinition("add", Function(("first", "second"), [BinaryOperation(Reference("first"), "+", Reference("second"))])).evaluate(scope)
-    FunctionDefinition("a*b + c*d", Function(("a", "b", "c", "d", "mul", "add"), [Print(FunctionCall(Reference("add"), [FunctionCall(Reference("mul"), [Reference("a"), Reference("b")]), FunctionCall(Reference("mul"), [Reference("c"), Reference("d")])]))])).evaluate(scope)
-    FunctionCall(Reference("a*b + c*d"), [Number(10), Number(20), Number(30), Number(40), Reference("mul"), Reference("add")]).evaluate(scope)
-
-    FunctionDefinition("Mul or add? That is a question!", Function(("func", "a", "b"), [Print(FunctionCall(Reference("func"), [Reference("a"), Reference("b")]))])).evaluate(scope)
-    FunctionCall(Reference("Mul or add? That is a question!"), [Reference("mul"), Number(2), Number(3)]).evaluate(scope)
-    FunctionCall(Reference("Mul or add? That is a question!"), [Reference("add"), Number(2), Number(3)]).evaluate(scope)
-
-    Conditional(BinaryOperation(Number(1), "==", Number(2)), [Print(Number(1))], [Print(Number(0))]).evaluate(scope)
-
-    FunctionDefinition("max", Function(("first", "second"), [Conditional(BinaryOperation(Reference("first"), ">", Reference("second")), [Print(Reference("first"))], [Print(Reference("second"))])])).evaluate(scope)
-
-    FunctionCall(Reference("max"), [Number(1), Number(2)]).evaluate(scope)
-    FunctionCall(Reference("max"), [Number(2), Number(1)]).evaluate(scope)
-    FunctionCall(Reference("max"), [Number(2), Number(2)]).evaluate(scope)
-
-    FunctionDefinition("best_school", Function((), [Print(Number(239))])).evaluate(scope)
-    FunctionCall(Reference("best_school"), []).evaluate(child_scope)
-
-    Conditional(BinaryOperation(Number(239), "<", Number(30)), [FunctionDefinition("best_school", Function((), [Print(Number(30))]))]).evaluate(child_scope)
-    FunctionCall(Reference("best_school"), []).evaluate(child_scope)
-
-    Conditional(BinaryOperation(Number(239), ">", Number(30)), [FunctionDefinition("best_school", Function((), [Print(Number(30))]))]).evaluate(child_scope)
-    FunctionCall(Reference("best_school"), []).evaluate(child_scope)
-
-    Print(UnaryOperation("-", Number(3))).evaluate(scope)
-    Print(BinaryOperation(UnaryOperation("!", Number(3)), "+", Number(5))).evaluate(scope)
-    Print(BinaryOperation(UnaryOperation("!", Number(0)), "+", Number(5))).evaluate(scope)
+def test_scope():
+    with pytest.raises(Exception):
+        sc = Scope()
+        sc['missing']
 
 
 if __name__ == '__main__':
-    #example()
-    my_tests()
-    #out_tests()
+    test()
+    test_scope()
