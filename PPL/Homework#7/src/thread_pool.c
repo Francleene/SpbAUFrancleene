@@ -9,13 +9,6 @@ void do_task(Task * task) {
         return;
     }
 
-    // if task ain't solved and we SHOULD NOT solve it then just wait
-    if (!task->should_solve) {
-        pthread_cond_wait(&task->cond, &task->mutex);
-        pthread_mutex_unlock(&task->mutex);
-        return;
-    }
-
     task->func(task->arg);
     task->solved = 1;
 
@@ -24,20 +17,13 @@ void do_task(Task * task) {
     pthread_mutex_unlock(&task->mutex);
 }
 
-int is_finished(TaskQueue * tq) {
-	pthread_mutex_lock(&tq->finished_mutex);
-	int finished = tq->finished;
-	pthread_mutex_unlock(&tq->finished_mutex);
-	return finished;
-}
-
 void * do_tasks(void * ptr) {
     struct TaskQueue * tq = (struct TaskQueue *)ptr;
 
     for(;;) {
         pthread_mutex_lock(&tq->mutex);
 
-        while (tq->task_head == NULL && !is_finished(tq)) {
+        while (tq->task_head == NULL && !tq->finished) {
             pthread_cond_wait(&tq->cond, &tq->mutex);
         }
 
@@ -46,7 +32,6 @@ void * do_tasks(void * ptr) {
             pthread_mutex_unlock(&tq->mutex);
 
             pthread_mutex_lock(&task_node->task->mutex);
-            task_node->task->should_solve = 1;
             do_task(task_node->task);
 			free(task_node);
         } else {
@@ -73,7 +58,6 @@ struct TaskNode * pop_task(struct TaskQueue * tq) {
 
 void task_queue_init(struct TaskQueue * tq)
 {
-	pthread_mutex_init(&tq->finished_mutex, NULL);
     pthread_mutex_init(&tq->mutex, NULL);
     pthread_cond_init(&tq->cond, NULL);
 
@@ -104,13 +88,16 @@ void thpool_submit(struct ThreadPool* pool, Task * task) {
 
 void thpool_wait(Task * task) {
     pthread_mutex_lock(&task->mutex);
-    do_task(task);
+	while (!task->solved) {
+		pthread_cond_wait(&task->cond, &task->mutex);
+	}
+	pthread_mutex_unlock(&task->mutex);
 }
 
 void set_finished(TaskQueue * tq) {
-	pthread_mutex_lock(&tq->finished_mutex);
+	pthread_mutex_lock(&tq->mutex);
 	tq->finished = 1;
-	pthread_mutex_unlock(&tq->finished_mutex);	
+	pthread_mutex_unlock(&tq->mutex);	
 }
 
 void thpool_finit(ThreadPool* thpool) {
@@ -118,7 +105,6 @@ void thpool_finit(ThreadPool* thpool) {
     pthread_cond_broadcast(&thpool->tasks.cond);
 
     for (size_t i = 0; i < thpool->threads_num; i++) {
-		pthread_cond_signal(&thpool->tasks.cond);
         pthread_join(thpool->threads[i], NULL);
     }
     free(thpool->threads);
@@ -130,7 +116,6 @@ void init_task(Task * task, void (* init_func)(void *), void * init_arg)
     task->arg = init_arg;
 
     task->solved = 0;
-    task->should_solve = 0;
 
     pthread_mutex_init(&task->mutex, NULL);
     pthread_cond_init(&task->cond, NULL);
