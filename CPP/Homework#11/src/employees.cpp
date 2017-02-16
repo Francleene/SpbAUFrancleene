@@ -139,7 +139,7 @@ Developer::Developer() {
     _name = nullptr;
 }
 
-Developer::Developer(const Developer &other) {
+Developer::Developer(const Developer &other) : Employee(other) {
     this->_base_salary = other._base_salary;
     this->_has_bonus   = other._has_bonus;
 
@@ -204,7 +204,7 @@ SalesManager::SalesManager() {
     _name = nullptr;
 }
 
-SalesManager::SalesManager(const SalesManager &other) {
+SalesManager::SalesManager(const SalesManager &other) : Employee(other) {
     this->_base_salary = other._base_salary;
     this->_sold_nm     = other._sold_nm;
     this->_price       = other._price;
