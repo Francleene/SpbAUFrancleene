@@ -89,9 +89,7 @@ static char *read_cstring_binary(std::ifstream &is) {
 char *read_cstring_terminal(std::istream &is) {
     size_t size = 0, capacity = 2;
     char *cstring = new char[capacity];
-
-
-
+	
     char ch;
     do {
         is.get(ch);
