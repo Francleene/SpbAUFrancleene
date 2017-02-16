@@ -89,7 +89,7 @@ char *read_cstring_terminal(std::istream &is) {
     size_t size = 0, capacity = 2;
     char *cstring = new char[capacity];
 	
-    char ch;
+    char ch = ' ';
     do {
         is.get(ch);
     } while (is_delimiter(ch));
@@ -103,6 +103,9 @@ char *read_cstring_terminal(std::istream &is) {
         cstring[size++] = ch;
         is.get(ch);
     }
+
+    if (size == capacity) { cstring = double_capacity(cstring, capacity); }
+    cstring[size] = 0;
 
     return cstring;
 }
