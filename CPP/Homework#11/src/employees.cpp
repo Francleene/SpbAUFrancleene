@@ -14,7 +14,7 @@ std::ofstream &operator<<(std::ofstream &os, Employee &obj);
 // static utilities
 static int get_cstring_len_binary(std::ifstream &is);
 static char *double_capacity(char *old_cstring, size_t old_capacity);
-static bool can_be_in_name(char ch);
+static bool is_delimiter(char ch);
 
 // static read function
 static char *  read_cstring_binary(std::ifstream &is);
@@ -71,11 +71,10 @@ static char *double_capacity(char *old_cstring, size_t old_capacity) {
     return new_cstring;
 }
 
-static bool can_be_in_name(char ch) {
-    return ('a' <= ch && ch <= 'z') ||
-           ('A' <= ch && ch <= 'Z') ||
-           ('0' <= ch && ch <= '9') ||
-            ch == '.';
+static bool is_delimiter(char ch) {
+    return (ch == ' '  || 
+			ch == '\t' ||
+			ch == '\n'   );
 }
 
 static char *read_cstring_binary(std::ifstream &is) {
@@ -89,15 +88,13 @@ static char *read_cstring_binary(std::ifstream &is) {
 char *read_cstring_terminal(std::istream &is) {
     size_t size = 0, capacity = 2;
     char *cstring = new char[capacity];
-
-
-
-    char ch;
+	
+    char ch = ' ';
     do {
         is.get(ch);
-    } while (!can_be_in_name(ch));
+    } while (is_delimiter(ch));
 
-    while (can_be_in_name(ch)) {
+    while (!is_delimiter(ch)) {
         if (size == capacity) {
             cstring = double_capacity(cstring, capacity);
             capacity *= 2;
@@ -106,6 +103,9 @@ char *read_cstring_terminal(std::istream &is) {
         cstring[size++] = ch;
         is.get(ch);
     }
+
+    if (size == capacity) { cstring = double_capacity(cstring, capacity); }
+    cstring[size] = 0;
 
     return cstring;
 }
@@ -139,7 +139,7 @@ Developer::Developer() {
     _name = nullptr;
 }
 
-Developer::Developer(const Developer &other) {
+Developer::Developer(const Developer &other) : Employee(other) {
     this->_base_salary = other._base_salary;
     this->_has_bonus   = other._has_bonus;
 
@@ -204,7 +204,7 @@ SalesManager::SalesManager() {
     _name = nullptr;
 }
 
-SalesManager::SalesManager(const SalesManager &other) {
+SalesManager::SalesManager(const SalesManager &other) : Employee(other) {
     this->_base_salary = other._base_salary;
     this->_sold_nm     = other._sold_nm;
     this->_price       = other._price;
@@ -294,12 +294,15 @@ EmployeesArray &EmployeesArray::operator=(const EmployeesArray &other) {
 }
 
 EmployeesArray::~EmployeesArray() {
+    for (int i = 0; i < _size; i++) {
+	delete _employees[i];
+    }
     delete[] _employees;
 }
 
 int EmployeesArray::total_salary() const {
     int32_t summ = 0;
-    for (size_t i = 0; i < _size; i++) {
+    for (int i = 0; i < _size; i++) {
         summ += _employees[i]->salary();
     }
     return summ;
@@ -340,11 +343,12 @@ std::istream &operator>>(std::istream &is, EmployeesArray &obj) {
 }
 
 std::ostream &operator<<(std::ostream &os, EmployeesArray &obj) {
-    for (size_t i = 0; i < obj._size; i++) {
+    for (int i = 0; i < obj._size; i++) {
         os << i + 1 << ". " << *obj._employees[i];
     }
 
     os << "== Total salary: " << obj.total_salary() << std::endl;
+	std::cout << std::endl;
 
     return os;
 }
@@ -353,7 +357,7 @@ std::ifstream &operator>>(std::ifstream &is, EmployeesArray &obj) {
     int32_t type, num_worker = read_int32_t_binary(is);
     Employee *new_worker;
 
-    for (size_t i = 0; i < num_worker; i++) {
+    for (int i = 0; i < num_worker; i++) {
         type = read_int32_t_binary(is);
 
         if (type == 1) { new_worker = new Developer; }
@@ -368,7 +372,7 @@ std::ifstream &operator>>(std::ifstream &is, EmployeesArray &obj) {
 std::ofstream &operator<<(std::ofstream &os, EmployeesArray &obj) {
     write_int32_t_binary(os, obj._size);
 
-    for (size_t i = 0; i < obj._size; i++) {
+    for (int i = 0; i < obj._size; i++) {
         os << *obj._employees[i];
     }
 
