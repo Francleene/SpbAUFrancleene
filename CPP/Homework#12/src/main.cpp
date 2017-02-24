@@ -1,23 +1,18 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <cstring>
 
+#include "../include/product.hpp"
 #include "../include/my_vector.hpp"
-#include "../src/my_vector.tpp"
-
-class A {
-public:
-    A() { std::cout << "Hi" << std::endl; }
-    A(const A &other) { std::cout << "Oh" << std::endl; }
-    ~A() { std::cout << "Bye" << std::endl; }
-};
+#include "../include/test_function.hpp"
 
 int main() {
-    my_vector<int> g;
-    int y = 5;
-    g.push_back(y);
-
-    std::cout << g[0] << ' ' << g.size() << ' ' << g.capacity();
-    g.pop_back();
+    int x1(1), x2(2);
+	test_my_vector(x1, x2);
+	
+	Product p1("asdf", 4, 12.0), p2("qwe", -1, 7.5);
+	test_my_vector(p1, p2);
 
     return 0;
 }
