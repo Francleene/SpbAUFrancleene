@@ -2,6 +2,8 @@
 #define _MY_VECTOR_HPP_
 
 #include <cstddef>
+#include <iostream>
+#include <fstream>
 
 template <class T>
 class my_vector {
@@ -25,6 +27,11 @@ public:
     void push_back(T &obj); // I
     void pop_back(); // I
     void clear(); // I
+
+	template <class U>
+	friend std::ostream &operator<<(std::ostream &os, const my_vector<U> &obj);
+	template <class U>
+	friend std::ofstream &operator<<(std::ofstream &os, const my_vector<U> &obj);
 
 private:
     void smaller_resize(size_t n); // I
