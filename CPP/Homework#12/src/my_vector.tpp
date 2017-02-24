@@ -17,7 +17,11 @@ template <class T>
 my_vector<T>::my_vector(size_t n) {
     size_     = n;
     capacity_ = nearest_pow2(n);
+
     array_    = (T *)new char[capacity_ * sizeof(T)];
+	for (size_t i = 0; i < size_; i++) {
+		new (array_ + i) T();
+	}
 }
 
 template <class T>
