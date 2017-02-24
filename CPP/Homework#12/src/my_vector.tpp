@@ -153,7 +153,7 @@ void my_vector<T>::smaller_resize(size_t n) {
 
 template <class T>
 void my_vector<T>::greater_resize(size_t n) {
-	if (capacity_ < n) { reserve(n); }
+    if (capacity_ < n) { reserve(n); }
 
     for (; size_ < n; size_++) {
         new (array_ + size_) T();
