@@ -12,7 +12,7 @@ int main() {
 	test_my_vector(x1, x2);
 	
 	Product p1("asdf", 4, 12.0), p2("qwe", -1, 7.5);
-	test_my_vector(p1, p2);
+	test_my_vector<Product>(p1, p2);
 
     return 0;
 }
