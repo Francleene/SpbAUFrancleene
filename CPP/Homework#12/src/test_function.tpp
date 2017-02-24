@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "../include/my_vector.hpp"
+#include "../include/test_function.hpp"
 
 #define DO_CHECK(EXPR) check(EXPR, __FUNCTION__, __FILE__, __LINE__);
 
@@ -300,11 +301,11 @@ void test_my_vector(T x1, T x2) {
 	test_my_vector_constructors_operators<T>();
 	test_my_vector_size<T>(x1, x2);
 	test_my_vector_capacity<T>(x1, x2);
-	test_my_vector_empty<T>(x1, x2);
-	test_my_vector_resize<T>(x1, x2);
-	test_my_vector_reserve<T>(x1, x2);
-	test_my_vector_push_pop_back<T>(x1, x2);
-	test_my_vector_clear<T>(x1, x2);
+	//test_my_vector_empty<T>(x1, x2);
+	//test_my_vector_resize<T>(x1, x2);
+	//test_my_vector_reserve<T>(x1, x2);
+	//test_my_vector_push_pop_back<T>(x1, x2);
+	//test_my_vector_clear<T>(x1, x2);
 }
 
 #endif // _TEST_FUNCTION_TPP
