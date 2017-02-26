@@ -37,17 +37,27 @@ Product &Product::operator=(const Product &other) {
 	return *this;
 }
 
+bool Product::operator==(const Product &other) const {
+	if ((this->name_ && !other.name_) || (!this->name_ && other.name_)) { return false; } // if one has the name and another hasn't
+	if (this->name_ && other.name_ && strcmp(this->name_, other.name_)) { return false; }
+
+	if (this->quantity_ != other.quantity_) { return false; }
+	if (this->price_ != other.price_) { return false; }
+
+	return true;
+}
+
 Product::~Product() {
 	if (name_) { delete[] name_; }
 }
 
 std::ostream &operator<<(std::ostream &os, const Product &obj) {
-	os << obj.name_ << ' ' << obj.quantity_ << ' ' << obj.price_;
+	os << (obj.name_ ? obj.name_ : "Noname") << ' ' << obj.quantity_ << ' ' << obj.price_;
 	return os;
 }
 
 std::ofstream &operator<<(std::ofstream &os, const Product &obj) {
-	os << obj.name_ << ' ' << obj.quantity_ << ' ' << obj.price_;
+	os << (obj.name_ ? obj.name_ : "Noname") << ' ' << obj.quantity_ << ' ' << obj.price_;
 	return os;
 }
 
