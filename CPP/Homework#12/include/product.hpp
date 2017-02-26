@@ -10,6 +10,7 @@ public:
     Product(const char* name, int quantity, double price);
 	Product(const Product &other);
 	Product &operator=(const Product &other);
+    bool operator==(const Product &other) const;
 	~Product();
 
 	friend std::ostream &operator<<(std::ostream &os, const Product &obj);
