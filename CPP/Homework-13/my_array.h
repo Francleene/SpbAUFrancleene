@@ -6,13 +6,14 @@
 #define MY_ARRAY_MY_ARRAY_H
 
 #include <ctype.h>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 
 #define ASSERT(condition, message) \
         if (!(condition)) {        \
             std::cerr << message;  \
-            exit(1);               \
+            std::exit(1);               \
         }
 
 #define GET_CHAR_INDEX(number) (number >> 3)
