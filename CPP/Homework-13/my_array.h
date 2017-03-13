@@ -11,10 +11,10 @@
 #include <iostream>
 
 #define ASSERT(condition, message) \
-        if (!(condition)) {        \
-            std::cerr << message;  \
-            std::exit(1);               \
-        }
+if (!(condition)) {        \
+std::cerr << message;  \
+std::exit(1);               \
+}
 
 #define GET_CHAR_INDEX(number) (number >> 3)
 #define GET_CHAR_SIZE(number) (((number - 1) >> 3) + 1)
@@ -31,12 +31,12 @@ public:
 template<typename T, size_t N>
 bool my_array_base<T, N>::empty() const {
     return false;
-};
+}
 
 template<typename T, size_t N>
 size_t my_array_base<T, N>::size() const {
     return N;
-};
+}
 
 template<typename T, size_t N>
 class my_array : public my_array_base<T, N> {
@@ -45,13 +45,13 @@ public:
     my_array(const my_array<T, N> &other);
     my_array<T, N> &operator=(const my_array<T, N> &other);
     ~my_array();
-
-          T &at(size_t index);
+    
+    T &at(size_t index);
     const T &at(size_t index) const;
-
-          T &operator [] (size_t index);
+    
+    T &operator [] (size_t index);
     const T &operator [] (size_t index) const;
-
+    
     void fill(const T &value);
 private:
     T array_[N];
@@ -63,7 +63,7 @@ my_array<T, N>::my_array() { }
 template<typename T, size_t N>
 my_array<T, N>::my_array(const my_array<T, N> &other) {
     for (size_t i = 0; i < N; i++) {
-        this->array_ = other.array_;
+        this->array_[i] = other.array_[i];
     }
 }
 
@@ -113,10 +113,10 @@ private:
     class blob {
     public:
         blob(char *block, size_t pos);
-
+        
         blob &operator = (const blob &other);
         blob &operator = (const bool &other);
-
+        
         operator bool() const;
     private:
         void set_zero();
@@ -130,13 +130,13 @@ public:
     my_array(const my_array<bool, N> &other);
     my_array<bool, N> &operator = (const my_array<bool, N> &other);
     ~my_array();
-
+    
     blob at(size_t index);
     bool at(size_t index) const;
-
+    
     blob operator [] (size_t index);
     bool operator [] (size_t index) const;
-
+    
     void fill(bool is_true);
 private:
     bool get_value(size_t index) const;
@@ -145,7 +145,9 @@ private:
 };
 
 template<size_t N>
-my_array<bool, N>::my_array() { }
+my_array<bool, N>::my_array() {
+    fill(false);
+}
 
 template<size_t N>
 my_array<bool, N>::my_array(const my_array<bool, N> &other) {
@@ -167,14 +169,14 @@ my_array<bool, N>::~my_array() {}
 template<size_t N>
 typename my_array<bool, N>::blob my_array<bool, N>::at(size_t index) {
     ASSERT(index < N, "Index's out of range\n");
-
+    
     return blob(array_ + GET_CHAR_INDEX(index), index % 8);
 }
 
 template<size_t N>
 bool my_array<bool, N>::at(size_t index) const {
     ASSERT(index < N, "Index's out of range\n");
-
+    
     return get_value(index);
 }
 
@@ -191,8 +193,8 @@ bool my_array<bool, N>::operator [] (size_t index) const {
 template<size_t N>
 void my_array<bool, N>::fill(bool is_true) {
     char filling = is_true ? MAX_CHAR : MIN_CHAR;
-
-    for (size_t i = 0; i < N; i++) {
+    
+    for (size_t i = 0; i < GET_CHAR_SIZE(N); i++) {
         array_[i] = filling;
     }
 }
@@ -201,12 +203,12 @@ template<size_t N>
 bool my_array<bool, N>::get_value(size_t index) const {
     size_t block_index = index % 8;
     return array_[GET_CHAR_INDEX(index)] & (1 << block_index);
-};
+}
 
 template<size_t N>
 my_array<bool, N>::blob::blob(char *block, size_t pos)
-        : block_(block),
-          pos_(pos) {}
+: block_(block),
+pos_(pos) {}
 
 template<size_t N>
 typename my_array<bool, N>::blob &my_array<bool, N>::blob::operator = (const blob &other) {
