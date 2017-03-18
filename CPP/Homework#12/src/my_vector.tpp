@@ -1,6 +1,9 @@
 #ifndef _MY_VECTOR_TPP_
 #define _MY_VECTOR_TPP_
 
+#include <iostream>
+#include <fstream>
+
 #include "../include/my_vector.hpp"
 
 template <class T>
@@ -14,14 +17,18 @@ template <class T>
 my_vector<T>::my_vector(size_t n) {
     size_     = n;
     capacity_ = nearest_pow2(n);
-    array_    = ::operator new(capacity_ * sizeof(T));
+
+    array_    = (T *)new char[capacity_ * sizeof(T)];
+	for (size_t i = 0; i < size_; i++) {
+		new (array_ + i) T();
+	}
 }
 
 template <class T>
 my_vector<T>::my_vector(const my_vector &other) {
     this->size_     = other.size_;
     this->capacity_ = nearest_pow2(size_);
-    this->array     = ::operator new(capacity_ * sizeof(T));
+    this->array_    = (T *)new char[capacity_ * sizeof(T)];
 
     for (size_t i = 0; i < size_; i++) {
         new_obj(this->array_, i, other.array_[i]);
@@ -42,7 +49,7 @@ my_vector<T> &my_vector<T>::operator=(const my_vector &other) {
 template <class T>
 my_vector<T>::~my_vector() {
     clear();
-    if (array_) { delete[] (char *)array_; }
+    if (array_) { delete[] (char *)(array_); }
 }
 
 template <class T>
@@ -72,7 +79,7 @@ void my_vector<T>::reserve(size_t n) {
     if (n <= capacity_) { return; }
 
     size_t new_capacity = nearest_pow2(n);
-    T *new_array        = (T *)new char[n * sizeof(T)];
+    T *new_array        = (T *)new char[new_capacity * sizeof(T)];
     capacity_           = new_capacity;
 
     for (size_t i = 0; i < size_; i++) {
@@ -116,6 +123,28 @@ void my_vector<T>::clear() {
 }
 
 template <class T>
+std::ostream &operator<<(std::ostream &os, const my_vector<T> &obj) {
+	if (!obj.empty()) { os << obj[0]; }
+
+	for (size_t i = 1; i < obj.size_; i++) {
+		os << ' ' << obj[i];
+	}
+
+	return os;
+}
+
+template <class T>
+std::ofstream &operator<<(std::ofstream &os, const my_vector<T> &obj) {
+	if (!obj.empty()) { os << obj[0]; }
+
+	for (size_t i = 1; i < obj.size_; i++) {
+		std::cout << ' ' << obj[i];
+	}
+
+	return os;
+}
+
+template <class T>
 void my_vector<T>::smaller_resize(size_t n) {
     for (; n < size_; size_--) {
         array_[size_ - 1].~T();
@@ -124,6 +153,8 @@ void my_vector<T>::smaller_resize(size_t n) {
 
 template <class T>
 void my_vector<T>::greater_resize(size_t n) {
+    if (capacity_ < n) { reserve(n); }
+
     for (; size_ < n; size_++) {
         new (array_ + size_) T();
     }
@@ -132,7 +163,7 @@ void my_vector<T>::greater_resize(size_t n) {
 template <class T>
 size_t my_vector<T>::nearest_pow2(size_t n) const {
     size_t ans = 1;
-    while (ans < capacity_) {
+    while (ans < n) {
         ans <<= 1;
     }
 
